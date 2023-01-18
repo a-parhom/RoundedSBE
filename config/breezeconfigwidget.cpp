@@ -26,6 +26,7 @@
 #include "breezeconfigwidget.h"
 #include "breezeexceptionlist.h"
 #include "breezesettings.h"
+#include "breezedecorationhelper.h"
 
 #include <KLocalizedString>
 
@@ -38,12 +39,18 @@ namespace Breeze
     //_________________________________________________________
     ConfigWidget::ConfigWidget( QWidget* parent, const QVariantList &args ):
         KCModule(parent, args),
-        m_configuration( KSharedConfig::openConfig( QStringLiteral( "sierrabreezeenhancedrc" ) ) ),
+        m_configuration( KSharedConfig::openConfig( QStringLiteral( "roundedsbe.conf" ) ) ),
         m_changed( false )
     {
 
         // configuration
         m_ui.setupUi( this );
+
+        if(m_ui.cornersType->currentIndex() == Breeze::DecorationHelper::SquircledCorners) {
+            m_ui.squircleRatioSlider->setEnabled(true);
+        } else {
+            m_ui.squircleRatioSlider->setEnabled(false);
+        }
 
         // track ui changes
         connect( m_ui.titleAlignment, SIGNAL(currentIndexChanged(int)), SLOT(updateChanged()) );
@@ -52,7 +59,6 @@ namespace Breeze
         connect( m_ui.buttonPadding, SIGNAL(valueChanged(int)), SLOT(updateChanged()) );
         connect( m_ui.hOffset, SIGNAL(valueChanged(int)), SLOT(updateChanged()) );
         connect( m_ui.unisonHovering, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
-        connect( m_ui.cornerRadiusSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int /*i*/){updateChanged();} );
         connect( m_ui.drawBorderOnMaximizedWindows, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
         connect( m_ui.drawSizeGrip, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
         connect( m_ui.opaqueTitleBar, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
@@ -64,6 +70,17 @@ namespace Breeze
         connect( m_ui.hideTitleBar, SIGNAL(currentIndexChanged(int)), SLOT(updateChanged()) );
         connect( m_ui.matchColorForTitleBar, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
         connect( m_ui.systemForegroundColor, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
+
+        // track corners changes
+        connect( m_ui.applyCornersShader, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
+        connect( m_ui.applyCornersShaderToCSD, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
+        connect( m_ui.cornerRadiusSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int /*i*/){updateChanged();} );
+        connect( m_ui.drawOutline, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
+        connect( m_ui.darkThemeOutline, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
+        connect( m_ui.outlineStrengthSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int /*i*/){updateChanged();} );
+        connect( m_ui.disableCornersShaderForMaximized, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
+        connect( m_ui.cornersType, SIGNAL(currentIndexChanged(int)), SLOT(updateChanged()) );
+        connect( m_ui.squircleRatioSlider, QOverload<int>::of(&QSlider::valueChanged), [=](int /*i*/){updateChanged();} );
 
         // track animations changes
         connect( m_ui.animationsEnabled, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
@@ -98,7 +115,6 @@ namespace Breeze
         m_ui.buttonPadding->setValue( m_internalSettings->buttonPadding() );
         m_ui.hOffset->setValue( m_internalSettings->hOffset() );
         m_ui.unisonHovering->setChecked( m_internalSettings->unisonHovering() );
-        m_ui.cornerRadiusSpinBox->setValue( m_internalSettings->cornerRadius() );
         m_ui.drawBorderOnMaximizedWindows->setChecked( m_internalSettings->drawBorderOnMaximizedWindows() );
         m_ui.drawSizeGrip->setChecked( m_internalSettings->drawSizeGrip() );
         m_ui.opaqueTitleBar->setChecked( m_internalSettings->opaqueTitleBar() );
@@ -112,6 +128,17 @@ namespace Breeze
         m_ui.hideTitleBar->setCurrentIndex( m_internalSettings->hideTitleBar() );
         m_ui.matchColorForTitleBar->setChecked( m_internalSettings->matchColorForTitleBar() );
         m_ui.systemForegroundColor->setChecked( m_internalSettings->systemForegroundColor() );
+
+        // load corners
+        m_ui.applyCornersShader->setChecked( m_internalSettings->applyCornersShader() );
+        m_ui.applyCornersShaderToCSD->setChecked( m_internalSettings->applyCornersShaderToCSD() );
+        m_ui.cornerRadiusSpinBox->setValue( m_internalSettings->cornerRadius() );
+        m_ui.drawOutline->setChecked( m_internalSettings->drawOutline() );
+        m_ui.darkThemeOutline->setChecked( m_internalSettings->darkThemeOutline() );
+        m_ui.outlineStrengthSpinBox->setValue( m_internalSettings->outlineStrength() );
+        m_ui.disableCornersShaderForMaximized->setChecked( m_internalSettings->disableCornersShaderForMaximized() );
+        m_ui.cornersType->setCurrentIndex( m_internalSettings->cornersType() );
+        m_ui.squircleRatioSlider->setValue( m_internalSettings->squircleRatio() );
 
         // load shadows
         if( m_internalSettings->shadowSize() <= InternalSettings::ShadowVeryLarge ) m_ui.shadowSize->setCurrentIndex( m_internalSettings->shadowSize() );
@@ -149,7 +176,6 @@ namespace Breeze
         m_internalSettings->setButtonPadding( m_ui.buttonPadding->value() );
         m_internalSettings->setHOffset( m_ui.hOffset->value() );
         m_internalSettings->setUnisonHovering( m_ui.unisonHovering->isChecked() );
-        m_internalSettings->setCornerRadius( m_ui.cornerRadiusSpinBox->value() );
         m_internalSettings->setDrawBorderOnMaximizedWindows( m_ui.drawBorderOnMaximizedWindows->isChecked() );
         m_internalSettings->setDrawSizeGrip( m_ui.drawSizeGrip->isChecked() );
         m_internalSettings->setOpaqueTitleBar( m_ui.opaqueTitleBar->isChecked() );
@@ -163,6 +189,16 @@ namespace Breeze
         m_internalSettings->setHideTitleBar( m_ui.hideTitleBar->currentIndex() );
         m_internalSettings->setMatchColorForTitleBar( m_ui.matchColorForTitleBar->isChecked() );
         m_internalSettings->setSystemForegroundColor( m_ui.systemForegroundColor->isChecked() );
+
+        m_internalSettings->setApplyCornersShader(m_ui.applyCornersShader->isChecked());
+        m_internalSettings->setApplyCornersShaderToCSD(m_ui.applyCornersShaderToCSD->isChecked());
+        m_internalSettings->setCornerRadius( m_ui.cornerRadiusSpinBox->value() );
+        m_internalSettings->setDrawOutline(m_ui.drawOutline->isChecked());
+        m_internalSettings->setDarkThemeOutline(m_ui.darkThemeOutline->isChecked());
+        m_internalSettings->setOutlineStrength(m_ui.outlineStrengthSpinBox->value());
+        m_internalSettings->setDisableCornersShaderForMaximized(m_ui.disableCornersShaderForMaximized->isChecked());
+        m_internalSettings->setCornersType(m_ui.cornersType->currentIndex());
+        m_internalSettings->setSquircleRatio(m_ui.squircleRatioSlider->value());
 
         m_internalSettings->setShadowSize( m_ui.shadowSize->currentIndex() );
         m_internalSettings->setShadowStrength( qRound( qreal(m_ui.shadowStrength->value()*255)/100 ) );
@@ -214,7 +250,6 @@ namespace Breeze
         m_ui.buttonPadding->setValue( m_internalSettings->buttonPadding() );
         m_ui.hOffset->setValue( m_internalSettings->hOffset() );
         m_ui.unisonHovering->setChecked( m_internalSettings->unisonHovering() );
-        m_ui.cornerRadiusSpinBox->setValue( m_internalSettings->cornerRadius() );
         m_ui.drawBorderOnMaximizedWindows->setChecked( m_internalSettings->drawBorderOnMaximizedWindows() );
         m_ui.drawSizeGrip->setChecked( m_internalSettings->drawSizeGrip() );
         m_ui.opaqueTitleBar->setChecked( m_internalSettings->opaqueTitleBar() );
@@ -223,6 +258,16 @@ namespace Breeze
         m_ui.hideTitleBar->setCurrentIndex( m_internalSettings->hideTitleBar() );
         m_ui.matchColorForTitleBar->setChecked( m_internalSettings->matchColorForTitleBar() );
         m_ui.systemForegroundColor->setChecked( m_internalSettings->systemForegroundColor() );
+
+        m_ui.applyCornersShader->setChecked( m_internalSettings->applyCornersShader() );
+        m_ui.applyCornersShaderToCSD->setChecked( m_internalSettings->applyCornersShaderToCSD() );
+        m_ui.cornerRadiusSpinBox->setValue( m_internalSettings->cornerRadius() );
+        m_ui.drawOutline->setChecked( m_internalSettings->drawOutline() );
+        m_ui.darkThemeOutline->setChecked( m_internalSettings->darkThemeOutline() );
+        m_ui.outlineStrengthSpinBox->setValue( m_internalSettings->outlineStrength() );
+        m_ui.disableCornersShaderForMaximized->setChecked( m_internalSettings->disableCornersShaderForMaximized() );
+        m_ui.cornersType->setCurrentIndex( m_internalSettings->cornersType() );
+        m_ui.squircleRatioSlider->setValue( m_internalSettings->squircleRatio() );
 
         m_ui.animationsEnabled->setChecked( m_internalSettings->animationsEnabled() );
         m_ui.animationsDuration->setValue( m_internalSettings->animationsDuration() );
@@ -249,6 +294,12 @@ namespace Breeze
         // check configuration
         if( !m_internalSettings ) return;
 
+        if(m_ui.cornersType->currentIndex() == Breeze::DecorationHelper::SquircledCorners) {
+            m_ui.squircleRatioSlider->setEnabled(true);
+        } else {
+            m_ui.squircleRatioSlider->setEnabled(false);
+        }
+
         // track modifications
         bool modified( false );
 
@@ -258,7 +309,6 @@ namespace Breeze
         else if ( m_ui.buttonPadding->value() != m_internalSettings->buttonPadding() ) modified = true;
         else if ( m_ui.hOffset->value() != m_internalSettings->hOffset() ) modified = true;
         else if( m_ui.unisonHovering->isChecked() != m_internalSettings->unisonHovering() ) modified = true;
-        else if( m_ui.cornerRadiusSpinBox->value() != m_internalSettings->cornerRadius() ) modified = true;
         else if( m_ui.drawBorderOnMaximizedWindows->isChecked() !=  m_internalSettings->drawBorderOnMaximizedWindows() ) modified = true;
         else if( m_ui.drawSizeGrip->isChecked() !=  m_internalSettings->drawSizeGrip() ) modified = true;
         else if( m_ui.opaqueTitleBar->isChecked() !=  m_internalSettings->opaqueTitleBar() ) modified = true;
@@ -270,6 +320,17 @@ namespace Breeze
         else if ( m_ui.hideTitleBar->currentIndex() != m_internalSettings->hideTitleBar() ) modified = true;
         else if ( m_ui.matchColorForTitleBar->isChecked() != m_internalSettings->matchColorForTitleBar() ) modified = true;
         else if ( m_ui.systemForegroundColor->isChecked() != m_internalSettings->systemForegroundColor() ) modified = true;
+
+        // corners 
+        else if( m_ui.applyCornersShader->isChecked() != m_internalSettings->applyCornersShader() ) modified = true;
+        else if( m_ui.applyCornersShaderToCSD->isChecked() != m_internalSettings->applyCornersShaderToCSD() ) modified = true;
+        else if( m_ui.cornerRadiusSpinBox->value() != m_internalSettings->cornerRadius() ) modified = true;
+        else if( m_ui.drawOutline->isChecked() != m_internalSettings->drawOutline() ) modified = true;
+        else if( m_ui.darkThemeOutline->isChecked() != m_internalSettings->darkThemeOutline() ) modified = true;
+        else if( m_ui.outlineStrengthSpinBox->value() != m_internalSettings->outlineStrength() ) modified = true;
+        else if( m_ui.disableCornersShaderForMaximized->isChecked() != m_internalSettings->disableCornersShaderForMaximized() ) modified = true;
+        else if( m_ui.cornersType->currentIndex() != m_internalSettings->cornersType() ) modified = true;
+        else if( m_ui.squircleRatioSlider->value() != m_internalSettings->squircleRatio() ) modified = true;
 
         // animations
         else if( m_ui.animationsEnabled->isChecked() !=  m_internalSettings->animationsEnabled() ) modified = true;

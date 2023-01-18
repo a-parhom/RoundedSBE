@@ -1,10 +1,10 @@
 [Desktop Entry]
-Exec=kcmshell5 sierrabreezeenhancedconfig
+Exec=kcmshell5 roundedsbeconfig
 Icon=preferences-system-windows
 Type=Service
 X-KDE-ServiceTypes=KCModule
 
-X-KDE-Library=org.kde.kdecoration2/sierrabreezeenhanced
+X-KDE-Library=org.kde.kdecoration2/roundedsbe
 X-KDE-PluginKeyword=kcmodule
 X-KDE-ParentApp=kcontrol
 X-KDE-Weight=60
@@ -12,4 +12,4 @@ X-KDE-PluginInfo-Name=Sierra Breeze Enhanced
 
 Name=Sierra Breeze Enhanced
 Comment=Modify the appearance of window decorations
-X-KDE-Keywords=sierrabreezeenhanced,decoration
+X-KDE-Keywords=roundedsbe,decoration

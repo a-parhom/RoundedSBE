@@ -27,6 +27,9 @@
 // IN THE SOFTWARE.
 //////////////////////////////////////////////////////////////////////////////
 
+// own
+#include "breezecommon_export.h"
+
 #include "breezesettings.h"
 #include "breeze.h"
 
@@ -36,7 +39,7 @@ namespace Breeze
 {
 
     //! breeze exceptions list
-    class ExceptionList
+    class BREEZECOMMON_EXPORT ExceptionList
     {
 
         public:

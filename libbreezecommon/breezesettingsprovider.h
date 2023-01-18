@@ -20,7 +20,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "breezedecoration.h"
+// own
+#include "breezecommon_export.h"
+
+#include <KDecoration2/Decoration>
 #include "breezesettings.h"
 #include "breeze.h"
 
@@ -31,7 +34,7 @@
 namespace Breeze
 {
 
-    class SettingsProvider: public QObject
+    class BREEZECOMMON_EXPORT SettingsProvider: public QObject
     {
 
         Q_OBJECT
@@ -44,8 +47,13 @@ namespace Breeze
         //* singleton
         static SettingsProvider *self();
 
+        //* default settings
+        InternalSettingsPtr defaultSettings() const;
+
         //* internal settings for given decoration
-        InternalSettingsPtr internalSettings(Decoration *) const;
+        InternalSettingsPtr internalSettings(KDecoration2::Decoration *) const;
+
+        InternalSettingsPtr internalSettings(QString className, QString caption, WId windowId=0 ) const;
 
         public Q_SLOTS:
 

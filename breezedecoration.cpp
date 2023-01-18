@@ -31,6 +31,7 @@
 #include "breezesizegrip.h"
 
 #include "breezeboxshadowrenderer.h"
+#include "breezedecorationhelper.h"
 
 #include <KDecoration2/DecoratedClient>
 #include <KDecoration2/DecorationButtonGroup>
@@ -524,19 +525,29 @@ namespace Breeze
         painter.setPen(Qt::NoPen);
         painter.setBrush(Qt::black);
         painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
-        painter.drawRoundedRect(
-            innerRect,
-            0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() + 0.5),
-            0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() + 0.5));
+        if(m_internalSettings->cornersType() == DecorationHelper::SquircledCorners) {
+            const QPainterPath squircle = DecorationHelper::drawSquircle(
+                0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() + 0.5), 
+                m_internalSettings->squircleRatio(), 
+                0, 
+                0,
+                innerRect);
+            painter.drawPolygon(squircle.toFillPolygon());
+        } else {
+            painter.drawRoundedRect(
+                innerRect,
+                0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() + 0.5),
+                0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() + 0.5));
+        }
 
         // Draw outline.
-        painter.setPen(withOpacity(g_shadowColor, 0.2 * strength));
+        /*painter.setPen(withOpacity(g_shadowColor, 0.2 * strength));
         painter.setBrush(Qt::NoBrush);
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
         painter.drawRoundedRect(
             innerRect,
             0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() - 0.5),
-            0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() - 0.5));
+            0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() - 0.5));*/
 
         painter.end();
 
@@ -603,19 +614,30 @@ namespace Breeze
         painter.setPen(Qt::NoPen);
         painter.setBrush(Qt::black);
         painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
-        painter.drawRoundedRect(
-            innerRect,
-            0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() + 0.5),
-            0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() + 0.5));
+        if(m_internalSettings->cornersType() == DecorationHelper::SquircledCorners) {
+            const QPainterPath squircle = DecorationHelper::drawSquircle(
+                0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() + 0.5), 
+                m_internalSettings->squircleRatio(), 
+                0, 
+                0,
+                innerRect);
+            painter.drawPolygon(squircle.toFillPolygon());
+        } else {
+            painter.drawRoundedRect(
+                innerRect,
+                0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() + 0.5),
+                0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() + 0.5));
+        }
+
 
         // Draw outline.
-        painter.setPen(withOpacity(g_shadowColorInactiveWindows, 0.2 * strength));
+        /*painter.setPen(withOpacity(g_shadowColorInactiveWindows, 0.2 * strength));
         painter.setBrush(Qt::NoBrush);
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
         painter.drawRoundedRect(
             innerRect,
             0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() - 0.5),
-            0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() - 0.5));
+            0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() - 0.5));*/
 
         painter.end();
 
@@ -774,24 +796,51 @@ namespace Breeze
             //set titleBar geometry and path
             m_titleRect = QRect(QPoint(0, 0), QSize(size().width(), borderTop()));
             m_titleBarPath->clear(); //clear the path for subsequent calls to this function
-            if( isMaximized() || !s->isAlphaChannelSupported() )
+            if( (isMaximized() && m_internalSettings->disableCornersShaderForMaximized()) || !s->isAlphaChannelSupported() )
             {
                 m_titleBarPath->addRect(m_titleRect);
 
             } else if( c->isShaded() ) {
-                m_titleBarPath->addRoundedRect(m_titleRect, 0.5*s->smallSpacing()*m_internalSettings->cornerRadius(), 0.5*s->smallSpacing()*m_internalSettings->cornerRadius());
+                if(m_internalSettings->cornersType() == DecorationHelper::SquircledCorners) {
+                    const QPainterPath squircle = DecorationHelper::drawSquircle(
+                        0.5*s->smallSpacing()*m_internalSettings->cornerRadius(), 
+                        m_internalSettings->squircleRatio(), 
+                        0, 
+                        0,
+                        m_titleRect);
+                    m_titleBarPath->addPath(squircle);
+                } else {
+                    m_titleBarPath->addRoundedRect(
+                        m_titleRect, 
+                        0.5*s->smallSpacing()*m_internalSettings->cornerRadius(), 
+                        0.5*s->smallSpacing()*m_internalSettings->cornerRadius());
+                }               
 
             } else {
                 QPainterPath clipRect;
                 clipRect.addRect(m_titleRect);
 
-                // the rect is made a little bit larger to be able to clip away the rounded corners at the bottom and sides
-                m_titleBarPath->addRoundedRect(m_titleRect.adjusted(
-                    isLeftEdge() ? -0.5*s->smallSpacing()*m_internalSettings->cornerRadius():0,
-                    isTopEdge() ? -0.5*s->smallSpacing()*m_internalSettings->cornerRadius():0,
-                    isRightEdge() ? 0.5*s->smallSpacing()*m_internalSettings->cornerRadius():0,
-                    0.5*s->smallSpacing()*m_internalSettings->cornerRadius()),
-                    0.5*s->smallSpacing()*m_internalSettings->cornerRadius(), 0.5*s->smallSpacing()*m_internalSettings->cornerRadius());
+                if(m_internalSettings->cornersType() == DecorationHelper::SquircledCorners) {
+                    const QPainterPath squircle = DecorationHelper::drawSquircle(
+                        0.5*s->smallSpacing()*m_internalSettings->cornerRadius(), 
+                        m_internalSettings->squircleRatio(), 
+                        0, 
+                        0,
+                        m_titleRect.adjusted(
+                            isLeftEdge() ? -0.5*s->smallSpacing()*m_internalSettings->cornerRadius():0,
+                            isTopEdge() ? -0.5*s->smallSpacing()*m_internalSettings->cornerRadius():0,
+                            isRightEdge() ? 0.5*s->smallSpacing()*m_internalSettings->cornerRadius():0,
+                            0.5*s->smallSpacing()*m_internalSettings->cornerRadius()));
+                    m_titleBarPath->addPath(squircle);
+                } else {
+                    // the rect is made a little bit larger to be able to clip away the rounded corners at the bottom and sides
+                    m_titleBarPath->addRoundedRect(m_titleRect.adjusted(
+                        isLeftEdge() ? -0.5*s->smallSpacing()*m_internalSettings->cornerRadius():0,
+                        isTopEdge() ? -0.5*s->smallSpacing()*m_internalSettings->cornerRadius():0,
+                        isRightEdge() ? 0.5*s->smallSpacing()*m_internalSettings->cornerRadius():0,
+                        0.5*s->smallSpacing()*m_internalSettings->cornerRadius()),
+                        0.5*s->smallSpacing()*m_internalSettings->cornerRadius(), 0.5*s->smallSpacing()*m_internalSettings->cornerRadius());
+                }
 
                 *m_titleBarPath = m_titleBarPath->intersected(clipRect);
             }
@@ -801,8 +850,24 @@ namespace Breeze
         m_windowPath->clear(); //clear the path for subsequent calls to this function
         if( !c->isShaded() )
         {
-            if( s->isAlphaChannelSupported() && !isMaximized() ) m_windowPath->addRoundedRect(rect(), 0.5*s->smallSpacing()*m_internalSettings->cornerRadius(), 0.5*s->smallSpacing()*m_internalSettings->cornerRadius());
-            else m_windowPath->addRect( rect() );
+            if( s->isAlphaChannelSupported() && !(isMaximized() && m_internalSettings->disableCornersShaderForMaximized()) ) {
+                if(m_internalSettings->cornersType() == DecorationHelper::SquircledCorners) {
+                    const QPainterPath squircle = DecorationHelper::drawSquircle(
+                        0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() + 0.5), 
+                        m_internalSettings->squircleRatio(), 
+                        0, 
+                        0,
+                        rect());
+                    m_windowPath->addPath(squircle);
+                } else {
+                    m_windowPath->addRoundedRect(
+                        rect(), 
+                        0.5*s->smallSpacing()*m_internalSettings->cornerRadius(), 
+                        0.5*s->smallSpacing()*m_internalSettings->cornerRadius());  
+                }
+            } else {
+                m_windowPath->addRect( rect() );
+            } 
             
         } else {
             *m_windowPath = *m_titleBarPath;
@@ -899,12 +964,32 @@ namespace Breeze
             // clip away the top part
             // if( !hideTitleBar() ) painter->setClipRect(0, borderTop(), size().width(), size().height() - borderTop(), Qt::IntersectClip);
 
-            QPen border_pen1( titleBarColor.darker( 125 ) );
-            painter->setPen(border_pen1);
-            if( s->isAlphaChannelSupported() )
-                painter->drawRoundedRect(rect(), 0.5*s->smallSpacing()*m_internalSettings->cornerRadius(), 0.5*s->smallSpacing()*m_internalSettings->cornerRadius());
+            // When no borders set, outline will be drawn by shader
+            QPen border_pen1;
+            if(borderSize() == 0)
+                border_pen1 = QPen( titleBarColor );
             else
+                border_pen1 = QPen( titleBarColor.darker( 125 ) );
+
+            painter->setPen(border_pen1);
+            if( s->isAlphaChannelSupported() ) {
+                if(m_internalSettings->cornersType() == DecorationHelper::SquircledCorners) {
+                    const QPainterPath squircle = DecorationHelper::drawSquircle(
+                        0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() + 0.5), 
+                        m_internalSettings->squircleRatio(), 
+                        0, 
+                        0,
+                        rect());
+                    painter->drawPolygon(squircle.toFillPolygon());
+                } else {
+                    painter->drawRoundedRect(
+                        rect(), 
+                        0.5*s->smallSpacing()*m_internalSettings->cornerRadius(), 
+                        0.5*s->smallSpacing()*m_internalSettings->cornerRadius());
+                }
+            } else {
                 painter->drawRect( rect() );
+            }
 
             painter->restore();
         }
@@ -919,10 +1004,24 @@ namespace Breeze
 
             QPen border_pen1( titleBarColor.darker( 125 ) );
             painter->setPen(border_pen1);
-            if( s->isAlphaChannelSupported() )
-              painter->drawRoundedRect(rect(), 0.5*s->smallSpacing()*m_internalSettings->cornerRadius(), 0.5*s->smallSpacing()*m_internalSettings->cornerRadius());
-            else
+            if( s->isAlphaChannelSupported() ) {
+                if(m_internalSettings->cornersType() == DecorationHelper::SquircledCorners) {
+                    const QPainterPath squircle = DecorationHelper::drawSquircle(
+                        0.5*s->smallSpacing()*(m_internalSettings->cornerRadius() + 0.5), 
+                        m_internalSettings->squircleRatio(), 
+                        0, 
+                        0,
+                        rect());
+                    painter->drawPolygon(squircle.toFillPolygon());
+                } else {
+                    painter->drawRoundedRect(
+                        rect(), 
+                        0.5*s->smallSpacing()*m_internalSettings->cornerRadius(), 
+                        0.5*s->smallSpacing()*m_internalSettings->cornerRadius());
+                }
+            } else {
               painter->drawRect( rect() );
+            }
 
             painter->restore();
         }

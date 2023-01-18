@@ -1,9 +1,9 @@
 
-project(sierrabreezeenhanced)
+project(roundedsbe)
 set(PROJECT_VERSION "1.3.1")
 set(PROJECT_VERSION_MAJOR 0)
 
-cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 
 include(WriteBasicConfigVersionFile)
 include(FeatureSummary)
@@ -57,21 +57,20 @@ configure_file(config-breeze.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config-breeze.h
 
 ################# includes #################
 add_subdirectory(libbreezecommon)
+add_subdirectory(cornersshader)
 
 ################# newt target #################
 ### plugin classes
-set(sierrabreezeenhanced_SRCS
+set(roundedsbe_SRCS
     breezebutton.cpp
     breezedecoration.cpp
-    breezeexceptionlist.cpp
-    breezesettingsprovider.cpp
     breezesizegrip.cpp)
 
-kconfig_add_kcfg_files(sierrabreezeenhanced_SRCS breezesettings.kcfgc)
+kconfig_add_kcfg_files(roundedsbe_SRCS breezesettings.kcfgc)
 
 ### config classes
 ### they are kept separately because they might move in a separate library in the future
-set(sierrabreezeenhanced_config_SRCS
+set(roundedsbe_config_SRCS
     config/breezeconfigwidget.cpp
     config/breezedetectwidget.cpp
     config/breezeexceptiondialog.cpp
@@ -80,28 +79,28 @@ set(sierrabreezeenhanced_config_SRCS
     config/breezeitemmodel.cpp
 )
 
-set(sierrabreezeenhanced_config_PART_FORMS
+set(roundedsbe_config_PART_FORMS
    config/ui/breezeconfigurationui.ui
    config/ui/breezedetectwidget.ui
    config/ui/breezeexceptiondialog.ui
    config/ui/breezeexceptionlistwidget.ui
 )
 
-ki18n_wrap_ui(sierrabreezeenhanced_config_PART_FORMS_HEADERS ${sierrabreezeenhanced_config_PART_FORMS})
+ki18n_wrap_ui(roundedsbe_config_PART_FORMS_HEADERS ${roundedsbe_config_PART_FORMS})
 
 ### build library
-add_library(sierrabreezeenhanced MODULE
-    ${sierrabreezeenhanced_SRCS}
-    ${sierrabreezeenhanced_config_SRCS}
-    ${sierrabreezeenhanced_config_PART_FORMS_HEADERS})
+add_library(roundedsbe MODULE
+    ${roundedsbe_SRCS}
+    ${roundedsbe_config_SRCS}
+    ${roundedsbe_config_PART_FORMS_HEADERS})
 
-target_link_libraries(sierrabreezeenhanced
+target_link_libraries(roundedsbe
     PUBLIC
         Qt5::Core
         Qt5::Gui
         Qt5::DBus
     PRIVATE
-        sierrabreezeenhancedcommon5
+        roundedsbecommon5
         KDecoration2::KDecoration
         KF5::ConfigCore
         KF5::CoreAddons
@@ -112,14 +111,14 @@ target_link_libraries(sierrabreezeenhanced
         KF5::WindowSystem)
 
 if(BREEZE_HAVE_X11)
-  target_link_libraries(sierrabreezeenhanced
+  target_link_libraries(roundedsbe
     PUBLIC
       Qt5::X11Extras
       XCB::XCB)
 endif()
 
 
-install(TARGETS sierrabreezeenhanced DESTINATION ${PLUGIN_INSTALL_DIR}/org.kde.kdecoration2)
-install(FILES config/sierrabreezeenhancedconfig.desktop DESTINATION  ${SERVICES_INSTALL_DIR})
+install(TARGETS roundedsbe DESTINATION ${PLUGIN_INSTALL_DIR}/org.kde.kdecoration2)
+install(FILES config/roundedsbeconfig.desktop DESTINATION  ${SERVICES_INSTALL_DIR})
 # install(TARGETS breezedecoration DESTINATION ${PLUGIN_INSTALL_DIR}/org.kde.kdecoration2)
 # install(FILES config/breezedecorationconfig.desktop DESTINATION  ${SERVICES_INSTALL_DIR})

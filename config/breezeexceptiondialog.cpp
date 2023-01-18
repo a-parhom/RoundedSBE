@@ -25,6 +25,7 @@
 
 #include "breezeexceptiondialog.h"
 #include "breezedetectwidget.h"
+#include "breezedecorationhelper.h"
 #include "config-breeze.h"
 
 #if BREEZE_HAVE_X11
@@ -40,6 +41,12 @@ namespace Breeze
     {
 
         m_ui.setupUi( this );
+
+        if(m_ui.cornersType->currentIndex() == Breeze::DecorationHelper::SquircledCorners) {
+            m_ui.squircleRatioSlider->setEnabled(true);
+        } else {
+            m_ui.squircleRatioSlider->setEnabled(false);
+        }
 
         connect( m_ui.buttonBox->button( QDialogButtonBox::Cancel ), &QAbstractButton::clicked, this, &QWidget::close );
 
@@ -68,6 +75,15 @@ namespace Breeze
         m_ui.opacityOverrideLabelSpinBox->setSpecialValueText(tr("None"));
         connect( m_ui.opacityOverrideLabelSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int /*i*/){updateChanged();} );
         connect( m_ui.isDialog, &QAbstractButton::clicked, this, &ExceptionDialog::updateChanged );
+
+        // corners 
+        connect( m_ui.cornerRadiusSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int /*i*/){updateChanged();} );
+        connect( m_ui.applyCornersShader, &QAbstractButton::clicked, this, &ExceptionDialog::updateChanged );
+        connect( m_ui.drawOutline, &QAbstractButton::clicked, this, &ExceptionDialog::updateChanged );
+        connect( m_ui.darkThemeOutline, &QAbstractButton::clicked, this, &ExceptionDialog::updateChanged );
+        connect( m_ui.outlineStrengthSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int /*i*/){updateChanged();} );
+        connect( m_ui.cornersType, SIGNAL(currentIndexChanged(int)), SLOT(updateChanged()) );
+        connect( m_ui.squircleRatioSlider, QOverload<int>::of(&QSlider::valueChanged), [=](int /*i*/){updateChanged();} );
 
         // hide detection dialog on non X11 platforms
         #if BREEZE_HAVE_X11
@@ -98,6 +114,15 @@ namespace Breeze
         m_ui.opacityOverrideLabelSpinBox->setValue( m_exception->opacityOverride() );
         m_ui.isDialog->setChecked( m_exception->isDialog() );
 
+        // corners 
+        m_ui.cornerRadiusSpinBox->setValue( m_exception->cornerRadius() );
+        m_ui.applyCornersShader->setChecked( m_exception->applyCornersShader() );
+        m_ui.drawOutline->setChecked( m_exception->drawOutline() );
+        m_ui.darkThemeOutline->setChecked( m_exception->darkThemeOutline() );
+        m_ui.outlineStrengthSpinBox->setValue( m_exception->outlineStrength() );
+        m_ui.cornersType->setCurrentIndex( m_exception->cornersType() );
+        m_ui.squircleRatioSlider->setValue( m_exception->squircleRatio() );
+
         // mask
         for( CheckBoxMap::iterator iter = m_checkboxes.begin(); iter != m_checkboxes.end(); ++iter )
         { iter.value()->setChecked( m_exception->mask() & iter.key() ); }
@@ -121,6 +146,15 @@ namespace Breeze
         m_exception->setOpaqueTitleBar( m_ui.opaqueTitleBar->isChecked() );
         m_exception->setOpacityOverride( m_ui.opacityOverrideLabelSpinBox->value() );
         m_exception->setIsDialog( m_ui.isDialog->isChecked() );
+        
+        // corners 
+        m_exception->setCornerRadius( m_ui.cornerRadiusSpinBox->value() );
+        m_exception->setApplyCornersShader( m_ui.applyCornersShader->isChecked() );
+        m_exception->setDrawOutline( m_ui.drawOutline->isChecked() );
+        m_exception->setDarkThemeOutline( m_ui.darkThemeOutline->isChecked() );
+        m_exception->setOutlineStrength( m_ui.outlineStrengthSpinBox->value() );
+        m_exception->setCornersType( m_ui.cornersType->currentIndex() );
+        m_exception->setSquircleRatio( m_ui.squircleRatioSlider->value() );
 
         // mask
         unsigned int mask = None;
@@ -137,6 +171,13 @@ namespace Breeze
     void ExceptionDialog::updateChanged()
     {
         bool modified( false );
+
+        if(m_ui.cornersType->currentIndex() == Breeze::DecorationHelper::SquircledCorners) {
+            m_ui.squircleRatioSlider->setEnabled(true);
+        } else {
+            m_ui.squircleRatioSlider->setEnabled(false);
+        }
+
         if( m_exception->exceptionType() != m_ui.exceptionType->currentIndex() ) modified = true;
         else if( m_exception->exceptionPattern() != m_ui.exceptionEditor->text() ) modified = true;
         else if( m_exception->borderSize() != m_ui.borderSizeComboBox->currentIndex() ) modified = true;
@@ -149,6 +190,16 @@ namespace Breeze
         else if( m_exception->opaqueTitleBar() != m_ui.opaqueTitleBar->isChecked() ) modified = true;
         else if( m_exception->opacityOverride() != m_ui.opacityOverrideLabelSpinBox->value() ) modified = true;
         else if( m_exception->isDialog() != m_ui.isDialog->isChecked() ) modified = true;
+
+        // corners 
+        else if( m_ui.applyCornersShader->isChecked() != m_exception->applyCornersShader() ) modified = true;
+        else if( m_ui.cornerRadiusSpinBox->value() != m_exception->cornerRadius() ) modified = true;
+        else if( m_ui.drawOutline->isChecked() != m_exception->drawOutline() ) modified = true;
+        else if( m_ui.darkThemeOutline->isChecked() != m_exception->darkThemeOutline() ) modified = true;
+        else if( m_ui.outlineStrengthSpinBox->value() != m_exception->outlineStrength() ) modified = true;
+        else if( m_ui.cornersType->currentIndex() != m_exception->cornersType() ) modified = true;
+        else if( m_ui.squircleRatioSlider->value() != m_exception->squircleRatio() ) modified = true;
+
         else
         {
             // check mask

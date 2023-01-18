@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>553</width>
-    <height>572</height>
+    <height>863</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,6 +20,27 @@
       <string>Window Identification</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="1" colspan="2">
+       <widget class="QLineEdit" name="exceptionEditor">
+        <property name="showClearButton" stdset="0">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QComboBox" name="exceptionType">
+        <item>
+         <property name="text">
+          <string>Window Class Name</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Window Title</string>
+         </property>
+        </item>
+       </widget>
+      </item>
       <item row="0" column="0" alignment="Qt::AlignLeft">
        <widget class="QLabel" name="label">
         <property name="text">
@@ -51,27 +72,6 @@
         <property name="text">
          <string>Detect Window Properties</string>
         </property>
-       </widget>
-      </item>
-      <item row="1" column="1" colspan="2">
-       <widget class="QLineEdit" name="exceptionEditor">
-        <property name="showClearButton" stdset="0">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1" colspan="2">
-       <widget class="QComboBox" name="exceptionType">
-        <item>
-         <property name="text">
-          <string>Window Class Name</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Window Title</string>
-         </property>
-        </item>
        </widget>
       </item>
      </layout>
@@ -181,11 +181,11 @@
        </widget>
       </item>
       <item row="3" column="0">
-        <widget class="QCheckBox" name="systemForegroundColor">
-          <property name="text">
-            <string>Use System Foreground Colors</string>
-          </property>
-        </widget>
+       <widget class="QCheckBox" name="systemForegroundColor">
+        <property name="text">
+         <string>Use System Foreground Colors</string>
+        </property>
+       </widget>
       </item>
       <item row="4" column="0">
        <widget class="QCheckBox" name="drawBackgroundGradient">
@@ -330,6 +330,144 @@
        <widget class="QCheckBox" name="isDialog">
         <property name="text">
          <string>Only for dialogs</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Window Corners Options</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="3" column="0" colspan="2">
+       <widget class="QCheckBox" name="drawOutline">
+        <property name="text">
+         <string>Draw outline around windows</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="2">
+       <widget class="QLabel" name="squircleRatioLabel">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Squircle ratio:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QSpinBox" name="outlineStrengthSpinBox">
+        <property name="suffix">
+         <string> %</string>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="value">
+         <number>15</number>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="QCheckBox" name="darkThemeOutline">
+        <property name="text">
+         <string>Draw fully black outer border (good with dark themes)</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="CornersFormLabel">
+        <property name="text">
+         <string>Corners form:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="outlineStrengthLabel">
+        <property name="text">
+         <string>Outline strength:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QComboBox" name="cornersType">
+        <item>
+         <property name="text">
+          <string>Rounded</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Squircled</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="cornerRadiusLabel">
+        <property name="text">
+         <string>Corner radius:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0" colspan="2">
+       <widget class="QSlider" name="squircleRatioSlider">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="maximum">
+         <number>24</number>
+        </property>
+        <property name="pageStep">
+         <number>12</number>
+        </property>
+        <property name="value">
+         <number>12</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="tickPosition">
+         <enum>QSlider::TicksBelow</enum>
+        </property>
+        <property name="tickInterval">
+         <number>12</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="cornerRadiusSpinBox">
+        <property name="suffix">
+         <string> px</string>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="value">
+         <number>6</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="applyCornersShader">
+        <property name="text">
+         <string>Apply shader to round window corners</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

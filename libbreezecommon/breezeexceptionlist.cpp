@@ -67,6 +67,14 @@ namespace Breeze
             configuration->setMatchColorForTitleBar( exception.matchColorForTitleBar() );
             configuration->setIsDialog( exception.isDialog() );
 
+            configuration->setCornerRadius( exception.cornerRadius() );
+            configuration->setApplyCornersShader( exception.applyCornersShader() );
+            configuration->setDrawOutline( exception.drawOutline() );
+            configuration->setDarkThemeOutline( exception.darkThemeOutline() );
+            configuration->setOutlineStrength( exception.outlineStrength() );
+            configuration->setCornersType( exception.cornersType() );
+            configuration->setSquircleRatio( exception.squircleRatio() );
+
             // append to exceptions
             _exceptions.append( configuration );
 
@@ -104,7 +112,29 @@ namespace Breeze
     {
 
         // list of items to be written
-        QStringList keys = { "Enabled", "ExceptionPattern", "ExceptionType", "HideTitleBar", "DrawTitleBarSeparator", "IsDialog", "OpaqueTitleBar", "OpacityOverride", "Mask", "BorderSize", "MatchColorForTitleBar", "DrawBackgroundGradient", "GradientOverride"};
+        QStringList keys = { 
+            "Enabled", 
+            "ExceptionPattern", 
+            "ExceptionType", 
+            "HideTitleBar", 
+            "DrawTitleBarSeparator", 
+            "IsDialog", 
+            "OpaqueTitleBar", 
+            "OpacityOverride", 
+            "Mask", 
+            "BorderSize", 
+            "MatchColorForTitleBar", 
+            "DrawBackgroundGradient", 
+            "GradientOverride",
+
+            "CornerRadius",
+            "ApplyCornersShader",
+            "DrawOutline",
+            "DarkThemeOutline",
+            "OutlineStrength",
+            "CornersType",
+            "SquircleRatio"
+        };
 
         // write all items
         foreach( auto key, keys )

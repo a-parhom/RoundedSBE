@@ -22,6 +22,11 @@
 
 #include "breezeexceptionlist.h"
 
+#include <KDecoration2/DecoratedClient>
+#include <KDecoration2/DecorationButtonGroup>
+#include <KDecoration2/DecorationSettings>
+#include <KDecoration2/DecorationShadow>
+
 #include <KWindowInfo>
 
 #include <QRegularExpression>
@@ -34,7 +39,7 @@ namespace Breeze
 
     //__________________________________________________________________
     SettingsProvider::SettingsProvider():
-        m_config( KSharedConfig::openConfig( QStringLiteral("sierrabreezeenhancedrc") ) )
+        m_config( KSharedConfig::openConfig( QStringLiteral("roundedsbe.conf") ) )
     { reconfigure(); }
 
     //__________________________________________________________________
@@ -69,14 +74,35 @@ namespace Breeze
     }
 
     //__________________________________________________________________
-    InternalSettingsPtr SettingsProvider::internalSettings( Decoration *decoration ) const
+    InternalSettingsPtr SettingsProvider::defaultSettings() const
     {
+        return m_defaultSettings;
+    }
 
-        QString windowTitle;
+    //__________________________________________________________________
+    InternalSettingsPtr SettingsProvider::internalSettings( KDecoration2::Decoration *decoration ) const
+    {
         QString className;
 
         // get the client
         const auto client = decoration->client().toStrongRef();
+        if( className.isEmpty() )
+        {
+            // retrieve class name
+            KWindowInfo info( client->windowId(), {}, NET::WM2WindowClass );
+            QString window_className( QString::fromUtf8(info.windowClassName()) );
+            QString window_class( QString::fromUtf8(info.windowClassClass()) );
+            className = window_className + QStringLiteral(" ") + window_class;
+        }
+
+        return internalSettings( className, client->caption(), client->windowId() );
+    }
+
+    //__________________________________________________________________
+    InternalSettingsPtr SettingsProvider::internalSettings( QString className, QString caption, WId windowId ) const
+    {
+
+        QString windowTitle;
 
         foreach( auto internalSettings, m_exceptions )
         {
@@ -87,9 +113,9 @@ namespace Breeze
             // discard exceptions with empty exception pattern
             if( internalSettings->exceptionPattern().isEmpty() ) continue;
 
-            if (internalSettings->isDialog())
+            if (internalSettings->isDialog() && windowId != 0)
             {
-              KWindowInfo info(client->windowId(), NET::WMWindowType);
+              KWindowInfo info(windowId, NET::WMWindowType);
               if (info.valid() && info.windowType(NET::NormalMask | NET::DialogMask) != NET::Dialog) {
                 continue;
               }
@@ -104,22 +130,13 @@ namespace Breeze
             {
                 case InternalSettings::ExceptionWindowTitle:
                 {
-                    value = windowTitle.isEmpty() ? (windowTitle = client->caption()):windowTitle;
+                    value = windowTitle.isEmpty() ? (windowTitle = caption):windowTitle;
                     break;
                 }
 
                 default:
                 case InternalSettings::ExceptionWindowClassName:
                 {
-                    if( className.isEmpty() )
-                    {
-                        // retrieve class name
-                        KWindowInfo info( client->windowId(), {}, NET::WM2WindowClass );
-                        QString window_className( QString::fromUtf8(info.windowClassName()) );
-                        QString window_class( QString::fromUtf8(info.windowClassClass()) );
-                        className = window_className + QStringLiteral(" ") + window_class;
-                    }
-
                     value = className;
                     break;
                 }
