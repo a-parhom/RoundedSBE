@@ -1,0 +1,37 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "therealestrob@gmail.com",
+                "Name": "Rob"
+            },
+            {
+                "Name": "Luwx"
+            },
+            {
+                "Name": "Parhom"
+            }
+        ],
+        "Category": "Appearance",
+        "Dependencies": [
+        ],
+        "Description": "An effect that shapes/rounds corners of windows. A part of Rounded SBE decoration.",
+        "EnabledByDefault": true,
+        "Icon": "",
+        "Id": "kwin4_effect_cornersshader",
+        "License": "GPL",
+        "Name": "Corners Shader for Rounded SBE Decoration",
+        "ServiceTypes": [
+            "KWin/Effect"
+        ],
+        "Version": "git"
+    },
+    "org.kde.kwin.effect": {
+        "video": "",
+        "exclusiveGroup": "",
+        "enabledByDefaultMethod": true
+    },
+    "X-KDE-Ordering": "5",
+    "X-Plasma-API": "",
+    "X-Plasma-MainScript": ""
+}
