@@ -62,7 +62,7 @@ namespace Breeze
         connect( this, &KDecoration2::DecorationButton::hoveredChanged, this, &Button::updateAnimationState );
 
         if (decoration->objectName() == "applet-window-buttons") {
-            connect( this, &Button::hoveredChanged, [=](bool hovered){
+            connect( this, &Button::hoveredChanged, [=, this](bool hovered){
                     decoration->setButtonHovered(hovered);
                     });
         }
@@ -155,7 +155,7 @@ namespace Breeze
             if (auto deco =  qobject_cast<Decoration*>(decoration())) {
               const QPalette activePalette = KIconLoader::global()->customPalette();
               QPalette palette = decoration()->client().toStrongRef().data()->palette();
-              palette.setColor(QPalette::Foreground, deco->fontColor());
+              palette.setColor(QPalette::WindowText, deco->fontColor());
               KIconLoader::global()->setCustomPalette(palette);
               decoration()->client().toStrongRef().data()->icon().paint(painter, iconRect.toRect());
               if (activePalette == QPalette()) {

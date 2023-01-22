@@ -70,20 +70,20 @@ namespace Breeze
         connect( m_ui.drawTitleBarSeparator, &QAbstractButton::clicked, this, &ExceptionDialog::updateChanged );
         connect( m_ui.drawBackgroundGradient, &QAbstractButton::clicked, this, &ExceptionDialog::updateChanged );
         m_ui.gradientOverrideLabelSpinBox->setSpecialValueText(tr("None"));
-        connect( m_ui.gradientOverrideLabelSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int /*i*/){updateChanged();} );
+        connect( m_ui.gradientOverrideLabelSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=, this](int /*i*/){updateChanged();} );
         connect( m_ui.opaqueTitleBar, &QAbstractButton::clicked, this, &ExceptionDialog::updateChanged );
         m_ui.opacityOverrideLabelSpinBox->setSpecialValueText(tr("None"));
-        connect( m_ui.opacityOverrideLabelSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int /*i*/){updateChanged();} );
+        connect( m_ui.opacityOverrideLabelSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=, this](int /*i*/){updateChanged();} );
         connect( m_ui.isDialog, &QAbstractButton::clicked, this, &ExceptionDialog::updateChanged );
 
         // corners 
-        connect( m_ui.cornerRadiusSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int /*i*/){updateChanged();} );
+        connect( m_ui.cornerRadiusSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=, this](int /*i*/){updateChanged();} );
         connect( m_ui.applyCornersShader, &QAbstractButton::clicked, this, &ExceptionDialog::updateChanged );
         connect( m_ui.drawOutline, &QAbstractButton::clicked, this, &ExceptionDialog::updateChanged );
         connect( m_ui.darkThemeOutline, &QAbstractButton::clicked, this, &ExceptionDialog::updateChanged );
-        connect( m_ui.outlineStrengthSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int /*i*/){updateChanged();} );
+        connect( m_ui.outlineStrengthSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=, this](int /*i*/){updateChanged();} );
         connect( m_ui.cornersType, SIGNAL(currentIndexChanged(int)), SLOT(updateChanged()) );
-        connect( m_ui.squircleRatioSlider, QOverload<int>::of(&QSlider::valueChanged), [=](int /*i*/){updateChanged();} );
+        connect( m_ui.squircleRatioSlider, QOverload<int>::of(&QSlider::valueChanged), [=, this](int /*i*/){updateChanged();} );
 
         // hide detection dialog on non X11 platforms
         #if BREEZE_HAVE_X11

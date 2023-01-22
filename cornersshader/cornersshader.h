@@ -22,7 +22,7 @@
 #ifndef CORNERSSHADER_H
 #define CORNERSSHADER_H
 
-#include <kwineffects.h>
+#include <kwinoffscreeneffect.h>
 
 #include "breezesettingsprovider.h"
 
@@ -30,7 +30,7 @@ namespace KWin {
 
 class GLTexture;
 
-class Q_DECL_EXPORT CornersShaderEffect : public Effect
+class Q_DECL_EXPORT CornersShaderEffect : public OffscreenEffect
 {
     Q_OBJECT
 public:

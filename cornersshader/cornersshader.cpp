@@ -38,11 +38,6 @@
 #include <KDecoration2/DecorationSettings>
 #include <KWindowEffects>
 
-/*#include <KWaylandServer/blur_interface.h>
-#include <KWaylandServer/surface_interface.h>
-#include <KWaylandServer/shadow_interface.h>
-#include <KWaylandServer/display.h>*/
-
 #include "breezedecorationhelper.h"
 
 namespace KWin {
@@ -54,7 +49,7 @@ KWIN_EFFECT_FACTORY_SUPPORTED_ENABLED(CornersShaderEffect, "cornersshader.json",
 #endif
 
 
-CornersShaderEffect::CornersShaderEffect() : Effect()
+CornersShaderEffect::CornersShaderEffect() : OffscreenEffect()
 {
     const auto screens = effects->screens();
     for(EffectScreen *s : screens)
@@ -242,6 +237,7 @@ CornersShaderEffect::windowAdded(EffectWindow *w)
         m_windows[w].skipEffect = true;
 
     setupDecorationConnections(w);
+    redirect(w);
 }
 
 void 
@@ -267,25 +263,6 @@ CornersShaderEffect::setupDecorationConnections(EffectWindow *w)
         reconfigure(ReconfigureAll);
     });
 }
-
-
-/*QPainterPath
-CornersShaderEffect::drawSquircle(float size, int translate)
-{
-    QPainterPath squircle;
-    float squircleSize = size * 2 * (float(m_settings->squircleRatio())/24.0 * 0.25 + 0.8); //0.8 .. 1.05
-    float squircleEdge = (size * 2) - squircleSize;
-
-    squircle.moveTo(size, 0);
-    squircle.cubicTo(QPointF(squircleSize, 0), QPointF(size * 2, squircleEdge), QPointF(size * 2, size));
-    squircle.cubicTo(QPointF(size * 2, squircleSize), QPointF(squircleSize, size * 2), QPointF(size, size * 2));
-    squircle.cubicTo(QPointF(squircleEdge, size * 2), QPointF(0, squircleSize), QPointF(0, size));
-    squircle.cubicTo(QPointF(0, squircleEdge), QPointF(squircleEdge, 0), QPointF(size, 0));
-
-    squircle.translate(translate,translate);
-
-    return squircle;
-}*/
 
 QImage
 CornersShaderEffect::genMaskImg(int size, bool mask, bool outer_rect)
@@ -525,7 +502,37 @@ CornersShaderEffect::prePaintWindow(EffectWindow *w, WindowPrePaintData &data, s
     }
 
     // Blur
-    QRegion blur_region = w->data(WindowBlurBehindRole).value<QRegion>();
+    QRegion blur_region;
+    bool valid = false;
+    long net_wm_blur_region = 0;
+
+    if (effects->xcbConnection()) {
+        net_wm_blur_region = effects->announceSupportProperty(QByteArrayLiteral("_KDE_NET_WM_BLUR_BEHIND_REGION"), this);
+    }
+
+    if (net_wm_blur_region != XCB_ATOM_NONE) {
+        const QByteArray value = w->readProperty(net_wm_blur_region, XCB_ATOM_CARDINAL, 32);
+        if (value.size() > 0 && !(value.size() % (4 * sizeof(uint32_t)))) {
+            const uint32_t *cardinals = reinterpret_cast<const uint32_t *>(value.constData());
+            for (unsigned int i = 0; i < value.size() / sizeof(uint32_t);) {
+                int x = cardinals[i++];
+                int y = cardinals[i++];
+                int w = cardinals[i++];
+                int h = cardinals[i++];
+                blur_region += QRect(x, y, w, h);
+            }
+        }
+        valid = !value.isNull();
+    }
+
+    if (auto internal = w->internalWindow()) {
+        const auto property = internal->property("kwin_blur");
+        if (property.isValid()) {
+            blur_region = property.value<QRegion>();
+            valid = true;
+        }
+    }
+
     if(!blur_region.isEmpty() || w->windowClass().contains("konsole", Qt::CaseInsensitive)) {   
         if(w->windowClass().contains("konsole", Qt::CaseInsensitive)) {
             blur_region = QRegion(0,0,geo.width(),geo.height());    
@@ -547,7 +554,7 @@ CornersShaderEffect::prePaintWindow(EffectWindow *w, WindowPrePaintData &data, s
         bottom_left.translate(0-m_shadowOffset+1, w->contentsRect().height()-m_size-1);
         blur_region = blur_region.subtracted(bottom_left);
 
-        w->setData(WindowBlurBehindRole, blur_region);
+        KWindowEffects::enableBlurBehind(w->windowId(), true, blur_region);
     }
     // end blur
 
@@ -672,7 +679,7 @@ CornersShaderEffect::drawWindow(EffectWindow *w, int mask, const QRegion &region
     ShaderManager *sm = ShaderManager::instance();
     sm->pushShader(m_shader.get());
 
-    data.shader = m_shader.get();
+    //data.shader = m_shader.get();
 
     bool is_wayland = effects->waylandDisplay() != nullptr;
     //qDebug() << geo_scaled.width() << geo_scaled.height();
@@ -696,7 +703,10 @@ CornersShaderEffect::drawWindow(EffectWindow *w, int mask, const QRegion &region
     glActiveTexture(GL_TEXTURE1);
     m_screens[s].maskTex->bind();
     glActiveTexture(GL_TEXTURE0);
-    effects->drawWindow(w, mask, region, data);
+    
+    setShader(w, m_shader.get());
+    OffscreenEffect::drawWindow(w, mask, region, data);
+    
     m_screens[s].maskTex->unbind();
     m_screens[s].lightOutlineTex->unbind();
     m_screens[s].darkOutlineTex->unbind();

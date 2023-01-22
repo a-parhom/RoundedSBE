@@ -4,6 +4,9 @@ set(PROJECT_VERSION "1.3.1")
 set(PROJECT_VERSION_MAJOR 0)
 
 cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(WriteBasicConfigVersionFile)
 include(FeatureSummary)

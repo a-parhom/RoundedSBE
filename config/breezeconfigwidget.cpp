@@ -55,7 +55,7 @@ namespace Breeze
         // track ui changes
         connect( m_ui.titleAlignment, SIGNAL(currentIndexChanged(int)), SLOT(updateChanged()) );
         connect( m_ui.buttonSize, SIGNAL(currentIndexChanged(int)), SLOT(updateChanged()) );
-        connect( m_ui.buttonSpacing, QOverload<int>::of(&QSpinBox::valueChanged), [=](int /*i*/){updateChanged();} );
+        connect( m_ui.buttonSpacing, QOverload<int>::of(&QSpinBox::valueChanged), [=, this](int /*i*/){updateChanged();} );
         connect( m_ui.buttonPadding, SIGNAL(valueChanged(int)), SLOT(updateChanged()) );
         connect( m_ui.hOffset, SIGNAL(valueChanged(int)), SLOT(updateChanged()) );
         connect( m_ui.unisonHovering, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
@@ -64,8 +64,8 @@ namespace Breeze
         connect( m_ui.opaqueTitleBar, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
         connect( m_ui.drawBackgroundGradient, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
         connect( m_ui.buttonStyle, SIGNAL(currentIndexChanged(int)), SLOT(updateChanged()) );
-        connect( m_ui.opacitySpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int /*i*/){updateChanged();} );
-        connect( m_ui.gradientSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int /*i*/){updateChanged();} );
+        connect( m_ui.opacitySpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=, this](int /*i*/){updateChanged();} );
+        connect( m_ui.gradientSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=, this](int /*i*/){updateChanged();} );
         connect( m_ui.drawTitleBarSeparator, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
         connect( m_ui.hideTitleBar, SIGNAL(currentIndexChanged(int)), SLOT(updateChanged()) );
         connect( m_ui.matchColorForTitleBar, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
@@ -74,13 +74,13 @@ namespace Breeze
         // track corners changes
         connect( m_ui.applyCornersShader, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
         connect( m_ui.applyCornersShaderToCSD, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
-        connect( m_ui.cornerRadiusSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int /*i*/){updateChanged();} );
+        connect( m_ui.cornerRadiusSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=, this](int /*i*/){updateChanged();} );
         connect( m_ui.drawOutline, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
         connect( m_ui.darkThemeOutline, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
-        connect( m_ui.outlineStrengthSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=](int /*i*/){updateChanged();} );
+        connect( m_ui.outlineStrengthSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), [=, this](int /*i*/){updateChanged();} );
         connect( m_ui.disableCornersShaderForMaximized, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
         connect( m_ui.cornersType, SIGNAL(currentIndexChanged(int)), SLOT(updateChanged()) );
-        connect( m_ui.squircleRatioSlider, QOverload<int>::of(&QSlider::valueChanged), [=](int /*i*/){updateChanged();} );
+        connect( m_ui.squircleRatioSlider, QOverload<int>::of(&QSlider::valueChanged), [=, this](int /*i*/){updateChanged();} );
 
         // track animations changes
         connect( m_ui.animationsEnabled, &QAbstractButton::clicked, this, &ConfigWidget::updateChanged );
