@@ -1,20 +1,22 @@
-# Sierra Breeze Enhanced
+# RoundedSBE
 
-**Discontinued** (no free time available). **Let me know if you'd like to help keeping SBE up**
+This is a fork of **SierraBreezeEnhanced** with integrated corner rounding effect **CornersShader** (reworked version of **LightlyShaders**). The main purpose of this fork is the shared configuration for both window decoration and corner rounding effect, as well as opportunity to use window rules, that were implemented in SBE, together with CornersShader effect.
 
 ## Overview
 
-Sierra Breeze Enhanced started as a fork of Breeze Enhanced decoration. It has the following main features:
+RoundedSBE has the following main features:
 
  * Button style options: Plasma / Gnome / macOS Sierra / macOS Dark Aurorae / SBE Sierra themes / SBE Dark Aurorae themes / Color Symbols themes / Monochrome Symbols themes (Note: the application menu button is considered special and does not change).
  * Button spacing and padding Options.
  * Button hovering animation.
  * Option to make all button symbols to appear at unison on hovering (Note: it does not apply to symbol themes).
  * Titlebar style options: SBE own style of Line Separation between Titlebar and Window / Match Titlebar color to Window color / Hide Titlebar under certain circumstances (Never/Maximization/Any Maximization (including H/V)/Always) / Gradient Adjustments / Opacity Adjustments.
- * Specific Shadow settings for inactive windows
+ * Specific Shadow settings for inactive windows.
+ * Option to force rounded corners (top and bottom) for all windows, including CSD.
+ * Settings for window corners shape: rounded or squircled.
  
  
-### Screenshot of SBE Sierra theme (or How it All started...)
+### Screenshot of RoundedSBE
 
 
 ![Active Buttons](screenshots/ActiveButtons.gif?raw=true "Active Buttons")
@@ -29,58 +31,29 @@ Sierra Breeze Enhanced started as a fork of Breeze Enhanced decoration. It has t
 
 ## Installation
 
-Please note that after installing, you need to restart KWin by executing either `kwin_x11 --replace` or `kwin_wayland --replace` in krunner (depending on whether your session runs upon X11 or Wayland). Alternatively, restarting the KDE session is obviously also an option. Then, Sierra Breeze Enhanced will appear in *System Settings &rarr; Application Style &rarr; Window Decorations*.
+Please note that after installing, you need to restart KWin by executing either `kwin_x11 --replace` or `kwin_wayland --replace` in krunner (depending on whether your session runs upon X11 or Wayland). Alternatively, restarting the KDE session is obviously also an option. Then, RoundedSBE will appear in *System Settings &rarr; Appearance &rarr; Window Decorations* and CornersShader will appear in *System Settings &rarr; Workspace Behavior &rarr; Desktop Effects*.
 
-### Method 1: Install prebuilt packages
-- Ubuntu:
-```sh
-sudo add-apt-repository ppa:krisives/sierrabreezeenhanced
-sudo apt update
-sudo apt install sierrabreezeenhanced
-```
-- openSUSE:
-```sh
-sudo zypper ar obs://home:trmdi trmdi
-sudo zypper in SierraBreezeEnhanced
-```
-- Arch Linux:
-```
-git clone https://aur.archlinux.org/kwin-decoration-sierra-breeze-enhanced-git.git
-cd kwin-decoration-sierra-breeze-enhanced-git
-makepkg -si
-cd ..
-rm -rf kwin-decoration-sierra-breeze-enhanced-git
-```
-
-- Alpine Linux:
-``` shell
-sudo echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
-sudo apk update
-sudo apk add sierrabreezeenhanced
-```
-
-### Method 2: Compile from source code
-*Compilation should not be done against versions of KWin < 5.14.*
+### Compile from source code
+*Compilation should not be done against versions of KWin < 5.27.*
 
 #### Step 1: Build dependencies
 - Ubuntu
 ``` shell
-sudo apt install build-essential libkf5config-dev libkdecorations2-dev libqt5x11extras5-dev qtdeclarative5-dev extra-cmake-modules libkf5guiaddons-dev libkf5configwidgets-dev libkf5windowsystem-dev libkf5coreaddons-dev libkf5iconthemes-dev gettext
+sudo apt install build-essential libkf5config-dev libkdecorations2-dev libqt5x11extras5-dev qtdeclarative5-dev extra-cmake-modules libkf5guiaddons-dev libkf5configwidgets-dev libkf5windowsystem-dev libkf5coreaddons-dev libkf5iconthemes-dev gettext git cmake g++ qttools5-dev libkf5crash-dev libkf5globalaccel-dev libkf5kio-dev libkf5notifications-dev kinit-dev kwin-dev 
 ```
 - Arch Linux
 ``` shell
-sudo pacman -S kdecoration qt5-declarative qt5-x11extras    # Decoration
-sudo pacman -S cmake extra-cmake-modules                    # Installation
+sudo pacman -S git make cmake gcc gettext extra-cmake-modules qt5-tools kcrash kglobalaccel kde-dev-utils kio knotifications kinit kwin kdecoration qt5-declarative qt5-x11extras
 ```
 - Fedora
 ``` shell
-sudo dnf install cmake extra-cmake-modules
+sudo dnf install git cmake gcc-c++ extra-cmake-modules
 sudo dnf install "cmake(Qt5Core)" "cmake(Qt5Gui)" "cmake(Qt5DBus)" "cmake(Qt5X11Extras)" "cmake(KF5GuiAddons)" "cmake(KF5WindowSystem)" "cmake(KF5I18n)" "cmake(KDecoration2)" "cmake(KF5CoreAddons)" "cmake(KF5ConfigWidgets)"
+sudo dnf qt5-qttools-devel qt5-qttools-static qt5-qtx11extras-devel kf5-kconfigwidgets-devel kf5-kcrash-devel kf5-kguiaddons-devel kf5-kglobalaccel-devel kf5-kio-devel kf5-ki18n-devel kf5-knotifications-devel kf5-kinit-devel kwin-devel qt5-qtbase-devel libepoxy-devel
 ```
-
-- Alpine Linux
+- OPenSUSE
 ``` shell
-sudo apk add extra-cmake-modules qt5-qtbase-dev kdecoration-dev kcoreaddons-dev kguiaddons-dev kconfigwidgets-dev kwindowsystem-dev ki18n-dev kiconthemes-dev
+sudo zypper install git cmake gcc-c++ extra-cmake-modules libqt5-qttools-devel libqt5-qtx11extras-devel kconfigwidgets-devel kcrash-devel kguiaddons-devel kglobalaccel-devel kio-devel ki18n-devel knotifications-devel kinit-devel kwin5-devel libQt5Gui-devel libQt5OpenGL-devel libepoxy-devel
 ```
 
 #### Step 2: Then compile and install
@@ -101,13 +74,12 @@ sudo make install
 
 ## Uninstall
 
-- Method 1: Use your Package manager
-- Method 2: Run the uninstall script
+- Method 1: Run the uninstall script
 ```sh
 chmod +x uninstall.sh
 ./uninstall.sh
 ```
-- Method 3: or manually if previously ran the install script
+- Method 2: or manually if previously ran the install script
 ```sh
 cd build
 sudo make uninstall
@@ -115,4 +87,4 @@ sudo make uninstall
 
 
 ## Credits
-Breeze, Sierra Breeze and Breeze Enhanced for obvious reasons :)
+Breeze, Sierra Breeze, Breeze Enhanced, Sierra Breeze Enhanced, ShapeCorners and LightlyShaders for obvious reasons :)
