@@ -634,33 +634,6 @@ CornersShaderEffect::drawWindow(EffectWindow *w, int mask, const QRegion &region
     const QRectF contents_geo_scaled = scale(contents_geo, m_screens[s].scale);
     const QRectF exp_geo_scaled = scale(exp_geo, m_screens[s].scale);
 
-    if(data.opacity() == 1.0) {
-        for (int corner = 0; corner < NTex; ++corner)
-        {       
-            QRegion reg = *m_screens[s].maskRegion[corner];
-            switch(corner) {
-                case TopLeft:
-                    reg.translate(geo.x() - m_shadowOffset, geo.y() - m_shadowOffset);
-                    break;
-                case TopRight:
-                    reg.translate(geo.x() + geo.width() - m_size, geo.y() - m_shadowOffset);
-                    break;
-                case BottomRight:
-                    reg.translate(geo.x() + geo.width() - m_size, geo.y() + geo.height() - m_size); 
-                    break;
-                case BottomLeft:
-                    reg.translate(geo.x() - m_shadowOffset, geo.y() + geo.height() - m_size);
-                    break;
-            }
-
-            //We need to trigger blending in scene_opengl.cpp in order to have antialiased corners
-            if(region.intersects(reg)) {
-                data.setOpacity(0.9999999);
-                break;
-            }
-        }
-    }
-
     //Draw rounded corners with shadows   
     //const int mvpMatrixLocation = m_shader->uniformLocation("modelViewProjectionMatrix");
     const int frameSizeLocation = m_shader->uniformLocation("frame_size");
