@@ -237,7 +237,9 @@ CornersShaderEffect::windowAdded(EffectWindow *w)
         m_windows[w].skipEffect = true;
 
     setupDecorationConnections(w);
+
     redirect(w);
+    setShader(w, m_shader.get());
 }
 
 void 
@@ -677,7 +679,6 @@ CornersShaderEffect::drawWindow(EffectWindow *w, int mask, const QRegion &region
     m_screens[s].maskTex->bind();
     glActiveTexture(GL_TEXTURE0);
     
-    setShader(w, m_shader.get());
     OffscreenEffect::drawWindow(w, mask, region, data);
     
     m_screens[s].maskTex->unbind();
