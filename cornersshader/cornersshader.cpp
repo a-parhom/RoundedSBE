@@ -443,11 +443,8 @@ CornersShaderEffect::paintScreen(int mask, const QRegion &region, ScreenPaintDat
 
     bool set_roundness = false;
 
-#if KWIN_EFFECT_API_VERSION < 234
-    qreal scale = GLRenderTarget::virtualScreenScale();
-#else
     qreal scale = effects->renderTargetScale();
-#endif
+
     if(scale != m_screens[s].scale) {
         m_screens[s].scale = scale;
         set_roundness = true;
@@ -496,11 +493,7 @@ CornersShaderEffect::prePaintWindow(EffectWindow *w, WindowPrePaintData &data, s
                 break;
         }
         
-    #if KWIN_EFFECT_API_VERSION < 234
-        data.clip -= reg;
-    #else
         data.opaque -= reg;
-    #endif
     }
 
     // Blur
@@ -578,18 +571,12 @@ CornersShaderEffect::prePaintWindow(EffectWindow *w, WindowPrePaintData &data, s
 bool
 CornersShaderEffect::isValidWindow(EffectWindow *w, int mask)
 {
-#if KWIN_EFFECT_API_VERSION < 234
-    const QRectF screen = QRectF(GLRenderTarget::virtualScreenGeometry());
-#else
     const QRectF screen = QRectF(effects->renderTargetRect());
-#endif
+
     if (!m_shader->isValid()
             //|| (!w->isOnCurrentDesktop() && !(mask & PAINT_WINDOW_TRANSFORMED))
             //|| w->isMinimized()
             || !m_windows[w].isManaged
-        /*#if KWIN_EFFECT_API_VERSION < 234
-            || !w->isPaintingEnabled()
-        #endif*/
             //|| effects->hasActiveFullScreenEffect()
             || w->isFullScreen()
             || w->isDesktop()
@@ -707,11 +694,7 @@ CornersShaderEffect::enabledByDefault()
 bool
 CornersShaderEffect::supported()
 {
-#if KWIN_EFFECT_API_VERSION < 234
-    return effects->isOpenGLCompositing() && GLRenderTarget::supported();
-#else
     return effects->isOpenGLCompositing() && GLFramebuffer::supported();
-#endif
 }
 
 #include "cornersshader.moc"
