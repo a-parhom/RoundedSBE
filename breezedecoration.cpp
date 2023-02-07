@@ -1056,6 +1056,22 @@ namespace Breeze
         else
             painter->setBrush( titleBarColor );
 
+        auto s = settings();
+        if( !s->isAlphaChannelSupported() )
+            painter->drawRect(titleRect);
+        else if ( !hasBorders() ) {
+            painter->setClipRect(titleRect, Qt::IntersectClip);
+            // the rect is made a little bit larger to be able to clip away the rounded corners at the bottom and sides
+            painter->drawRoundedRect(titleRect.adjusted(
+                isLeftEdge() ? -m_internalSettings->cornerRadius():0,
+                isTopEdge() ? -m_internalSettings->cornerRadius():0,
+                isRightEdge() ? m_internalSettings->cornerRadius():0,
+                m_internalSettings->cornerRadius()),
+                m_internalSettings->cornerRadius(), m_internalSettings->cornerRadius());
+        }
+        else
+            painter->drawRoundedRect(titleRect, m_internalSettings->cornerRadius(), m_internalSettings->cornerRadius());
+
         if( !c->isShaded() && !hideTitleBar() && outlineColor.isValid() )
         {
             // outline
@@ -1069,7 +1085,6 @@ namespace Breeze
 
         painter->restore();
 
-        auto s = settings();
         if( !hideTitleBar() ) {
           // draw all buttons
           m_leftButtons->paint(painter, repaintRegion);
