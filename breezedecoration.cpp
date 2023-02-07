@@ -962,7 +962,7 @@ namespace Breeze
             painter->setBrush( titleBarColor );
 
             // clip away the top part
-            // if( !hideTitleBar() ) painter->setClipRect(0, borderTop(), size().width(), size().height() - borderTop(), Qt::IntersectClip);
+            if( !hideTitleBar() ) painter->setClipRect(0, borderTop(), size().width(), size().height() - borderTop(), Qt::IntersectClip);
 
             // When no borders set, outline will be drawn by shader
             QPen border_pen1;
