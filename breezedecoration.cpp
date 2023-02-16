@@ -1062,15 +1062,27 @@ namespace Breeze
         else if ( !hasBorders() ) {
             painter->setClipRect(titleRect, Qt::IntersectClip);
             // the rect is made a little bit larger to be able to clip away the rounded corners at the bottom and sides
-            painter->drawRoundedRect(titleRect.adjusted(
+            QRect adjustetTitleRect = titleRect.adjusted(
                 isLeftEdge() ? -m_internalSettings->cornerRadius():0,
                 isTopEdge() ? -m_internalSettings->cornerRadius():0,
                 isRightEdge() ? m_internalSettings->cornerRadius():0,
-                m_internalSettings->cornerRadius()),
-                m_internalSettings->cornerRadius(), m_internalSettings->cornerRadius());
+                m_internalSettings->cornerRadius());
+
+            if(m_internalSettings->cornersType() == DecorationHelper::SquircledCorners) {
+                const QPainterPath squircle = DecorationHelper::drawSquircle(
+                    m_internalSettings->cornerRadius() + 0.5, 
+                    m_internalSettings->squircleRatio(), 
+                    0, 
+                    0,
+                    adjustetTitleRect);
+                painter->drawPolygon(squircle.toFillPolygon());
+            } else {
+                painter->drawRoundedRect(adjustetTitleRect, m_internalSettings->cornerRadius(), m_internalSettings->cornerRadius());
+            }            
         }
-        else
+        else {
             painter->drawRoundedRect(titleRect, m_internalSettings->cornerRadius(), m_internalSettings->cornerRadius());
+        }
 
         if( !c->isShaded() && !hideTitleBar() && outlineColor.isValid() )
         {
