@@ -10,8 +10,8 @@ uniform vec2 frame_size;
 uniform vec2 content_size;
 uniform vec3 csd_shadow_offset;
 uniform vec2 shadow_tex_size;
-uniform float radius;
-uniform float shadow_sample_offset;
+uniform int radius;
+uniform int shadow_sample_offset;
 uniform bool is_wayland;
 uniform bool has_decoration;
 uniform bool draw_outline;
@@ -80,7 +80,10 @@ void main()
     float start_x;
     float start_y;
 
-    float mask_tex_size = (radius + shadow_sample_offset)*2.0;
+    float f_shadow_sample_offset = float(shadow_sample_offset);
+    float f_radius = float(radius);
+
+    float mask_tex_size = (f_radius + f_shadow_sample_offset)*2.0;
 
     float titlebar_height = frame_size.y - content_size.y;
 
@@ -93,41 +96,41 @@ void main()
     if(expanded_size == frame_size && !has_decoration) {
         coord0 = vec2(texcoord0.x*frame_size.x, texcoord0.y*frame_size.y);
         //Left side
-        if (coord0.x < radius) {
+        if (coord0.x < f_radius) {
             //Top left corner
-            if (coord0.y < radius) {
-                texCorner = texture2D(mask_sampler, vec2((coord0.x+shadow_sample_offset)/mask_tex_size, (coord0.y+shadow_sample_offset)/mask_tex_size));
+            if (coord0.y < f_radius) {
+                texCorner = texture2D(mask_sampler, vec2((coord0.x+f_shadow_sample_offset)/mask_tex_size, (coord0.y+f_shadow_sample_offset)/mask_tex_size));
                 
                 outColor = shapeWindow(tex, texCorner);
 
                 //Outline
                 if(draw_outline) {
-                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x + shadow_sample_offset -1.0 )/mask_tex_size, (coord0.y + shadow_sample_offset -1.0 )/mask_tex_size));
+                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x + f_shadow_sample_offset -1.0 )/mask_tex_size, (coord0.y + f_shadow_sample_offset -1.0 )/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = lightOutline(outColor, texOutline, outline_strength);
                     }
 
                     //Dark outline
-                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x + shadow_sample_offset-1.0)/mask_tex_size, (coord0.y + shadow_sample_offset-1.0)/mask_tex_size));
+                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x + f_shadow_sample_offset-1.0)/mask_tex_size, (coord0.y + f_shadow_sample_offset-1.0)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = darkOutline(outColor, texOutline, dark_outline_strength);
                     }
                 }
             //Bottom left corner
-            } else if (coord0.y > frame_size.y - radius) {
-                texCorner = texture2D(mask_sampler, vec2((coord0.x+shadow_sample_offset)/mask_tex_size, 1.0 - (frame_size.y - coord0.y+shadow_sample_offset)/mask_tex_size));
+            } else if (coord0.y > frame_size.y - f_radius) {
+                texCorner = texture2D(mask_sampler, vec2((coord0.x+f_shadow_sample_offset)/mask_tex_size, 1.0 - (frame_size.y - coord0.y+f_shadow_sample_offset)/mask_tex_size));
                 
                 outColor = shapeWindow(tex, texCorner);
 
                 //Outline
                 if(draw_outline) {
-                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x + shadow_sample_offset -1.0 )/mask_tex_size, 1.0 - (frame_size.y - coord0.y + shadow_sample_offset -1.0 )/mask_tex_size));
+                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x + f_shadow_sample_offset -1.0 )/mask_tex_size, 1.0 - (frame_size.y - coord0.y + f_shadow_sample_offset -1.0 )/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = lightOutline(outColor, texOutline, outline_strength);
                     }
 
                     //Dark outline
-                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x + shadow_sample_offset-1.0)/mask_tex_size, 1.0 - (frame_size.y - coord0.y + shadow_sample_offset -1.0 )/mask_tex_size));
+                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x + f_shadow_sample_offset-1.0)/mask_tex_size, 1.0 - (frame_size.y - coord0.y + f_shadow_sample_offset -1.0 )/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = darkOutline(outColor, texOutline, dark_outline_strength);
                     }
@@ -137,7 +140,7 @@ void main()
                 outColor = tex;
 
                 //Outline
-                if(coord0.y > radius && coord0.y < frame_size.y - radius && draw_outline) {
+                if(coord0.y > f_radius && coord0.y < frame_size.y - f_radius && draw_outline) {
                     if(coord0.x >= 1.0 && coord0.x <= 2.0) {
                         outColor = mix(outColor, vec4(1.0,1.0,1.0,1.0), outline_strength);
                     }
@@ -151,41 +154,41 @@ void main()
                 }
             }
         //Right side
-        } else if (coord0.x > frame_size.x - radius) {
+        } else if (coord0.x > frame_size.x - f_radius) {
             //Top right corner
-            if (coord0.y < radius) {
-                texCorner = texture2D(mask_sampler, vec2(1.0 - (frame_size.x - coord0.x+shadow_sample_offset)/mask_tex_size, (coord0.y+shadow_sample_offset)/mask_tex_size));
+            if (coord0.y < f_radius) {
+                texCorner = texture2D(mask_sampler, vec2(1.0 - (frame_size.x - coord0.x+f_shadow_sample_offset)/mask_tex_size, (coord0.y+f_shadow_sample_offset)/mask_tex_size));
                 
                 outColor = shapeWindow(tex, texCorner);
 
                 //Outline
                 if(draw_outline) {
-                    vec4 texOutline = texture2D(light_outline_sampler, vec2(1.0 - (frame_size.x - coord0.x + shadow_sample_offset -1.0 )/mask_tex_size, (coord0.y + shadow_sample_offset -1.0 )/mask_tex_size));
+                    vec4 texOutline = texture2D(light_outline_sampler, vec2(1.0 - (frame_size.x - coord0.x + f_shadow_sample_offset -1.0 )/mask_tex_size, (coord0.y + f_shadow_sample_offset -1.0 )/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = lightOutline(outColor, texOutline, outline_strength);
                     }
 
                     //Dark outline
-                    texOutline = texture2D(dark_outline_sampler, vec2(1.0 - (frame_size.x - coord0.x + shadow_sample_offset-1.0)/mask_tex_size, (coord0.y + shadow_sample_offset-1.0)/mask_tex_size));
+                    texOutline = texture2D(dark_outline_sampler, vec2(1.0 - (frame_size.x - coord0.x + f_shadow_sample_offset-1.0)/mask_tex_size, (coord0.y + f_shadow_sample_offset-1.0)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = darkOutline(outColor, texOutline, dark_outline_strength);
                     }
                 }
             //Bottom right corner
-            } else if (coord0.y > frame_size.y - radius) {
-                texCorner = texture2D(mask_sampler, vec2(1.0 - (frame_size.x - coord0.x+shadow_sample_offset)/mask_tex_size, 1.0 - (frame_size.y - coord0.y+shadow_sample_offset)/mask_tex_size));
+            } else if (coord0.y > frame_size.y - f_radius) {
+                texCorner = texture2D(mask_sampler, vec2(1.0 - (frame_size.x - coord0.x+f_shadow_sample_offset)/mask_tex_size, 1.0 - (frame_size.y - coord0.y+f_shadow_sample_offset)/mask_tex_size));
                 
                 outColor = shapeWindow(tex, texCorner);
 
                 //Outline
                 if(draw_outline) {
-                    vec4 texOutline = texture2D(light_outline_sampler, vec2(1.0 - (frame_size.x - coord0.x + shadow_sample_offset -1.0 )/mask_tex_size, 1.0 - (frame_size.y - coord0.y + shadow_sample_offset -1.0 )/mask_tex_size));
+                    vec4 texOutline = texture2D(light_outline_sampler, vec2(1.0 - (frame_size.x - coord0.x + f_shadow_sample_offset -1.0 )/mask_tex_size, 1.0 - (frame_size.y - coord0.y + f_shadow_sample_offset -1.0 )/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = lightOutline(outColor, texOutline, outline_strength);
                     }
 
                     //Dark outline
-                    texOutline = texture2D(dark_outline_sampler, vec2(1.0 - (frame_size.x - coord0.x + shadow_sample_offset-1.0)/mask_tex_size, 1.0 - (frame_size.y - coord0.y + shadow_sample_offset -1.0 )/mask_tex_size));
+                    texOutline = texture2D(dark_outline_sampler, vec2(1.0 - (frame_size.x - coord0.x + f_shadow_sample_offset-1.0)/mask_tex_size, 1.0 - (frame_size.y - coord0.y + f_shadow_sample_offset -1.0 )/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = darkOutline(outColor, texOutline, dark_outline_strength);
                     }
@@ -195,7 +198,7 @@ void main()
                 outColor = tex;
 
                 //Outline
-                if(coord0.y > radius && coord0.y < frame_size.y - radius && draw_outline) {
+                if(coord0.y > f_radius && coord0.y < frame_size.y - f_radius && draw_outline) {
                     if(coord0.x >= frame_size.x -2.0 && coord0.x <= frame_size.x -1.0) {
                         outColor = mix(outColor, vec4(1.0,1.0,1.0,1.0), outline_strength);
                     }
@@ -213,7 +216,7 @@ void main()
             outColor = tex;
 
             //Outline
-            if(coord0.x > radius && coord0.x < frame_size.x - radius && draw_outline) {
+            if(coord0.x > f_radius && coord0.x < frame_size.x - f_radius && draw_outline) {
                 if(
                     (coord0.y >= frame_size.y -2.0 && coord0.y <= frame_size.y-1.0 )
                     || (coord0.y >= 1.0 && coord0.y <= 2.0)
@@ -234,45 +237,45 @@ void main()
     } else if(expanded_size != frame_size && !has_decoration) {
         coord0 = vec2(texcoord0.x*expanded_size.x, texcoord0.y*expanded_size.y);
         //Left side
-        if (coord0.x > csd_shadow_offset.x - shadow_sample_offset && coord0.x < radius + csd_shadow_offset.x) {
+        if (coord0.x > csd_shadow_offset.x - f_shadow_sample_offset && coord0.x < f_radius + csd_shadow_offset.x) {
             //Top left corner
-            if (coord0.y > frame_size.y + csd_shadow_offset.z - radius && coord0.y < frame_size.y + csd_shadow_offset.z + shadow_sample_offset) {
-                texCorner = texture2D(mask_sampler, vec2((coord0.x-csd_shadow_offset.x+shadow_sample_offset)/mask_tex_size, 1.0 - (frame_size.y + csd_shadow_offset.z - coord0.y+shadow_sample_offset)/mask_tex_size));
-                start_x = (csd_shadow_offset.x - shadow_sample_offset)/expanded_size.x;
-                start_y = (csd_shadow_offset.z + frame_size.y + shadow_sample_offset)/expanded_size.y;
+            if (coord0.y > frame_size.y + csd_shadow_offset.z - f_radius && coord0.y < frame_size.y + csd_shadow_offset.z + f_shadow_sample_offset) {
+                texCorner = texture2D(mask_sampler, vec2((coord0.x-csd_shadow_offset.x+f_shadow_sample_offset)/mask_tex_size, 1.0 - (frame_size.y + csd_shadow_offset.z - coord0.y+f_shadow_sample_offset)/mask_tex_size));
+                start_x = (csd_shadow_offset.x - f_shadow_sample_offset)/expanded_size.x;
+                start_y = (csd_shadow_offset.z + frame_size.y + f_shadow_sample_offset)/expanded_size.y;
                 
                 outColor = shapeShadowWindow(start_x, start_y, tex, texCorner);
 
                 //Outline
                 if(draw_outline) {
-                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - shadow_sample_offset)/mask_tex_size));
+                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + f_shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = lightOutline(outColor, texOutline, outline_strength);
                     }
 
                     //Dark outline
-                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - shadow_sample_offset)/mask_tex_size));
+                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + f_shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = darkOutline(outColor, texOutline, dark_outline_strength);
                     }
                 }
             //Bottom left corner
-            } else if (coord0.y > csd_shadow_offset.z - shadow_sample_offset && coord0.y < radius + csd_shadow_offset.z) {
-                texCorner = texture2D(mask_sampler, vec2((coord0.x-csd_shadow_offset.x+shadow_sample_offset)/mask_tex_size, (coord0.y-csd_shadow_offset.z+shadow_sample_offset)/mask_tex_size));
-                start_x = (csd_shadow_offset.x - shadow_sample_offset)/expanded_size.x;
-                start_y = (csd_shadow_offset.z - shadow_sample_offset)/expanded_size.y;
+            } else if (coord0.y > csd_shadow_offset.z - f_shadow_sample_offset && coord0.y < f_radius + csd_shadow_offset.z) {
+                texCorner = texture2D(mask_sampler, vec2((coord0.x-csd_shadow_offset.x+f_shadow_sample_offset)/mask_tex_size, (coord0.y-csd_shadow_offset.z+f_shadow_sample_offset)/mask_tex_size));
+                start_x = (csd_shadow_offset.x - f_shadow_sample_offset)/expanded_size.x;
+                start_y = (csd_shadow_offset.z - f_shadow_sample_offset)/expanded_size.y;
                 
                 outColor = shapeShadowWindow(start_x, start_y, tex, texCorner);
 
                 //Outline
                 if(draw_outline) {
-                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + shadow_sample_offset)/mask_tex_size));
+                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + f_shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = lightOutline(outColor, texOutline, outline_strength);
                     }
 
                     //Dark outline
-                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + shadow_sample_offset)/mask_tex_size));
+                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + f_shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = darkOutline(outColor, texOutline, dark_outline_strength);
                     }
@@ -282,7 +285,7 @@ void main()
                 outColor = tex;
 
                 //Outline
-                if(coord0.y > radius + csd_shadow_offset.z && coord0.y < csd_shadow_offset.z + frame_size.y - radius && draw_outline) {
+                if(coord0.y > f_radius + csd_shadow_offset.z && coord0.y < csd_shadow_offset.z + frame_size.y - f_radius && draw_outline) {
                     if(coord0.x >= csd_shadow_offset.x && coord0.x <= csd_shadow_offset.x+1.0) {
                         outColor = mix(outColor, vec4(1.0,1.0,1.0,1.0), outline_strength);
                     }
@@ -296,45 +299,45 @@ void main()
                 }
             }
         //Right side
-        } else if (coord0.x > csd_shadow_offset.x + frame_size.x - radius && coord0.x < csd_shadow_offset.x + frame_size.x + shadow_sample_offset) {
+        } else if (coord0.x > csd_shadow_offset.x + frame_size.x - f_radius && coord0.x < csd_shadow_offset.x + frame_size.x + f_shadow_sample_offset) {
             //Top right corner
-            if (coord0.y > frame_size.y + csd_shadow_offset.z - radius && coord0.y < frame_size.y + csd_shadow_offset.z + shadow_sample_offset) {
-                texCorner = texture2D(mask_sampler, vec2(1.0 - (frame_size.x + csd_shadow_offset.x - coord0.x+shadow_sample_offset)/mask_tex_size, 1.0 - (frame_size.y + csd_shadow_offset.z - coord0.y+shadow_sample_offset)/mask_tex_size));
-                start_x = (csd_shadow_offset.x + frame_size.x + shadow_sample_offset)/expanded_size.x;
-                start_y = (csd_shadow_offset.z + frame_size.y + shadow_sample_offset)/expanded_size.y;
+            if (coord0.y > frame_size.y + csd_shadow_offset.z - f_radius && coord0.y < frame_size.y + csd_shadow_offset.z + f_shadow_sample_offset) {
+                texCorner = texture2D(mask_sampler, vec2(1.0 - (frame_size.x + csd_shadow_offset.x - coord0.x+f_shadow_sample_offset)/mask_tex_size, 1.0 - (frame_size.y + csd_shadow_offset.z - coord0.y+f_shadow_sample_offset)/mask_tex_size));
+                start_x = (csd_shadow_offset.x + frame_size.x + f_shadow_sample_offset)/expanded_size.x;
+                start_y = (csd_shadow_offset.z + frame_size.y + f_shadow_sample_offset)/expanded_size.y;
                 
                 outColor = shapeShadowWindow(start_x, start_y, tex, texCorner);
 
                 //Outline
                 if(draw_outline) {
-                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - shadow_sample_offset)/mask_tex_size));
+                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - f_shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = lightOutline(outColor, texOutline, outline_strength);
                     }
 
                     //Dark outline
-                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - shadow_sample_offset)/mask_tex_size));
+                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - f_shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = darkOutline(outColor, texOutline, dark_outline_strength);
                     }
                 }
             //Bottom right corner
-            } else if (coord0.y > csd_shadow_offset.z - shadow_sample_offset && coord0.y < radius + csd_shadow_offset.z) {
-                texCorner = texture2D(mask_sampler, vec2(1.0 - (frame_size.x + csd_shadow_offset.x - coord0.x+shadow_sample_offset)/mask_tex_size, (coord0.y-csd_shadow_offset.z+shadow_sample_offset)/mask_tex_size));
-                start_x = (csd_shadow_offset.x + frame_size.x + shadow_sample_offset)/expanded_size.x;
-                start_y = (csd_shadow_offset.z - shadow_sample_offset)/expanded_size.y;
+            } else if (coord0.y > csd_shadow_offset.z - f_shadow_sample_offset && coord0.y < f_radius + csd_shadow_offset.z) {
+                texCorner = texture2D(mask_sampler, vec2(1.0 - (frame_size.x + csd_shadow_offset.x - coord0.x+f_shadow_sample_offset)/mask_tex_size, (coord0.y-csd_shadow_offset.z+f_shadow_sample_offset)/mask_tex_size));
+                start_x = (csd_shadow_offset.x + frame_size.x + f_shadow_sample_offset)/expanded_size.x;
+                start_y = (csd_shadow_offset.z - f_shadow_sample_offset)/expanded_size.y;
                 
                 outColor = shapeShadowWindow(start_x, start_y, tex, texCorner);
 
                 //Outline
                 if(draw_outline) {
-                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + shadow_sample_offset)/mask_tex_size));
+                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - f_shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = lightOutline(outColor, texOutline, outline_strength);
                     }
 
                     //Dark outline
-                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + shadow_sample_offset)/mask_tex_size));
+                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - f_shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = darkOutline(outColor, texOutline, dark_outline_strength);
                     }
@@ -344,7 +347,7 @@ void main()
                 outColor = tex;
 
                 //Outline
-                if(coord0.y > radius + csd_shadow_offset.z && coord0.y < csd_shadow_offset.z + frame_size.y - radius && draw_outline) {
+                if(coord0.y > f_radius + csd_shadow_offset.z && coord0.y < csd_shadow_offset.z + frame_size.y - f_radius && draw_outline) {
                     if(coord0.x >= frame_size.x + csd_shadow_offset.x-1.0 && coord0.x <= frame_size.x + csd_shadow_offset.x) {
                         outColor = mix(outColor, vec4(1.0,1.0,1.0,1.0), outline_strength);
                     }
@@ -362,7 +365,7 @@ void main()
             outColor = tex;
 
             //Outline
-            if(coord0.x > radius + csd_shadow_offset.x && coord0.x < csd_shadow_offset.x + frame_size.x - radius && draw_outline) {
+            if(coord0.x > f_radius + csd_shadow_offset.x && coord0.x < csd_shadow_offset.x + frame_size.x - f_radius && draw_outline) {
                 if(
                     (coord0.y >= frame_size.y + csd_shadow_offset.z-1.0 && coord0.y <= frame_size.y + csd_shadow_offset.z)
                     || (coord0.y >= csd_shadow_offset.z && coord0.y <= csd_shadow_offset.z+1.0)
@@ -383,13 +386,13 @@ void main()
     } else {
         coord0 = vec2(texcoord0.x*expanded_size.x, texcoord0.y*expanded_size.y);
         //Left side
-        if (coord0.x > csd_shadow_offset.x - shadow_sample_offset && coord0.x < radius + csd_shadow_offset.x) {
+        if (coord0.x > csd_shadow_offset.x - f_shadow_sample_offset && coord0.x < f_radius + csd_shadow_offset.x) {
             //Top left corner            
-            if (coord0.y > frame_size.y + csd_shadow_offset.z - radius && coord0.y < frame_size.y + csd_shadow_offset.z + shadow_sample_offset) {
-                if(coord0.y > frame_size.y + csd_shadow_offset.z - radius && coord0.y < frame_size.y + csd_shadow_offset.z - titlebar_height) {
-                    texCorner = texture2D(mask_sampler, vec2((coord0.x-csd_shadow_offset.x+shadow_sample_offset)/mask_tex_size, 1.0 - (frame_size.y + csd_shadow_offset.z - coord0.y+shadow_sample_offset)/mask_tex_size));
-                    start_x = (csd_shadow_offset.x - shadow_sample_offset)/expanded_size.x;
-                    start_y = (csd_shadow_offset.z - shadow_sample_offset)/expanded_size.y;
+            if (coord0.y > frame_size.y + csd_shadow_offset.z - f_radius && coord0.y < frame_size.y + csd_shadow_offset.z + f_shadow_sample_offset) {
+                if(coord0.y > frame_size.y + csd_shadow_offset.z - f_radius && coord0.y < frame_size.y + csd_shadow_offset.z - titlebar_height) {
+                    texCorner = texture2D(mask_sampler, vec2((coord0.x-csd_shadow_offset.x+f_shadow_sample_offset)/mask_tex_size, 1.0 - (frame_size.y + csd_shadow_offset.z - coord0.y+f_shadow_sample_offset)/mask_tex_size));
+                    start_x = (csd_shadow_offset.x - f_shadow_sample_offset)/expanded_size.x;
+                    start_y = (csd_shadow_offset.z - f_shadow_sample_offset)/expanded_size.y;
                     
                     outColor = shapeShadowWindow(start_x, start_y, tex, texCorner);
                 } else {
@@ -398,34 +401,34 @@ void main()
 
                 //Outline
                 if(draw_outline) {
-                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - shadow_sample_offset)/mask_tex_size));
+                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + f_shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = lightOutline(outColor, texOutline, outline_strength);
                     }
 
                     //Dark outline
-                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - shadow_sample_offset)/mask_tex_size));
+                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + f_shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = darkOutline(outColor, texOutline, dark_outline_strength);
                     }
                 }
             //Bottom left corner
-            } else if (coord0.y > csd_shadow_offset.z - shadow_sample_offset && coord0.y < radius + csd_shadow_offset.z) {
-                texCorner = texture2D(mask_sampler, vec2((coord0.x-csd_shadow_offset.x+shadow_sample_offset)/mask_tex_size, (coord0.y-csd_shadow_offset.z+shadow_sample_offset)/mask_tex_size));
-                start_x = (csd_shadow_offset.x - shadow_sample_offset)/expanded_size.x;
-                start_y = (csd_shadow_offset.z - shadow_sample_offset)/expanded_size.y;
+            } else if (coord0.y > csd_shadow_offset.z - f_shadow_sample_offset && coord0.y < f_radius + csd_shadow_offset.z) {
+                texCorner = texture2D(mask_sampler, vec2((coord0.x-csd_shadow_offset.x+f_shadow_sample_offset)/mask_tex_size, (coord0.y-csd_shadow_offset.z+f_shadow_sample_offset)/mask_tex_size));
+                start_x = (csd_shadow_offset.x - f_shadow_sample_offset)/expanded_size.x;
+                start_y = (csd_shadow_offset.z - f_shadow_sample_offset)/expanded_size.y;
                 
                 outColor = shapeShadowWindow(start_x, start_y, tex, texCorner);
 
                 //Outline
                 if(draw_outline) {
-                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + shadow_sample_offset)/mask_tex_size));
+                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + f_shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = lightOutline(outColor, texOutline, outline_strength);
                     }
 
                     //Dark outline
-                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + shadow_sample_offset)/mask_tex_size));
+                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - csd_shadow_offset.x + f_shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = darkOutline(outColor, texOutline, dark_outline_strength);
                     }
@@ -435,7 +438,7 @@ void main()
                 outColor = tex;
 
                 //Outline
-                if(coord0.y > radius + csd_shadow_offset.z && coord0.y < csd_shadow_offset.z + frame_size.y - radius && draw_outline) {
+                if(coord0.y > f_radius + csd_shadow_offset.z && coord0.y < csd_shadow_offset.z + frame_size.y - f_radius && draw_outline) {
                     if(coord0.x >= csd_shadow_offset.x && coord0.x <= csd_shadow_offset.x+1.0) {
                         outColor = mix(outColor, vec4(1.0,1.0,1.0,1.0), outline_strength);
                     }
@@ -449,13 +452,13 @@ void main()
                 }
             }
         //Right side
-        } else if (coord0.x > csd_shadow_offset.x + frame_size.x - radius && coord0.x < csd_shadow_offset.x + frame_size.x + shadow_sample_offset) {
+        } else if (coord0.x > csd_shadow_offset.x + frame_size.x - f_radius && coord0.x < csd_shadow_offset.x + frame_size.x + f_shadow_sample_offset) {
             //Top right corner            
-            if (coord0.y > frame_size.y + csd_shadow_offset.z - radius && coord0.y < frame_size.y + csd_shadow_offset.z + shadow_sample_offset) {
-                if(coord0.y > frame_size.y + csd_shadow_offset.z - radius && coord0.y < frame_size.y + csd_shadow_offset.z - titlebar_height) {
-                    texCorner = texture2D(mask_sampler, vec2(1.0 - (frame_size.x + csd_shadow_offset.x - coord0.x+shadow_sample_offset)/mask_tex_size, 1.0 - (frame_size.y + csd_shadow_offset.z - coord0.y+shadow_sample_offset)/mask_tex_size));
-                    start_x = (csd_shadow_offset.x - shadow_sample_offset)/expanded_size.x;
-                    start_y = (csd_shadow_offset.z - shadow_sample_offset)/expanded_size.y;
+            if (coord0.y > frame_size.y + csd_shadow_offset.z - f_radius && coord0.y < frame_size.y + csd_shadow_offset.z + f_shadow_sample_offset) {
+                if(coord0.y > frame_size.y + csd_shadow_offset.z - f_radius && coord0.y < frame_size.y + csd_shadow_offset.z - titlebar_height) {
+                    texCorner = texture2D(mask_sampler, vec2(1.0 - (frame_size.x + csd_shadow_offset.x - coord0.x+f_shadow_sample_offset)/mask_tex_size, 1.0 - (frame_size.y + csd_shadow_offset.z - coord0.y+f_shadow_sample_offset)/mask_tex_size));
+                    start_x = (csd_shadow_offset.x - f_shadow_sample_offset)/expanded_size.x;
+                    start_y = (csd_shadow_offset.z - f_shadow_sample_offset)/expanded_size.y;
                     
                     outColor = shapeShadowWindow(start_x, start_y, tex, texCorner);
                 } else {
@@ -464,34 +467,34 @@ void main()
 
                 //Outline
                 if(draw_outline) {
-                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - shadow_sample_offset)/mask_tex_size));
+                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - f_shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = lightOutline(outColor, texOutline, outline_strength);
                     }
 
                     //Dark outline
-                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - shadow_sample_offset)/mask_tex_size));
+                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - f_shadow_sample_offset)/mask_tex_size, (coord0.y - frame_size.y - csd_shadow_offset.z - f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = darkOutline(outColor, texOutline, dark_outline_strength);
                     }
                 }
             //Bottom right corner
-            } else if (coord0.y > csd_shadow_offset.z - shadow_sample_offset && coord0.y < radius + csd_shadow_offset.z) {
-                texCorner = texture2D(mask_sampler, vec2(1.0 - (frame_size.x + csd_shadow_offset.x - coord0.x+shadow_sample_offset)/mask_tex_size, (coord0.y-csd_shadow_offset.z+shadow_sample_offset)/mask_tex_size));
-                start_x = (csd_shadow_offset.x + frame_size.x + shadow_sample_offset)/expanded_size.x;
-                start_y = (csd_shadow_offset.z - shadow_sample_offset)/expanded_size.y;
+            } else if (coord0.y > csd_shadow_offset.z - f_shadow_sample_offset && coord0.y < f_radius + csd_shadow_offset.z) {
+                texCorner = texture2D(mask_sampler, vec2(1.0 - (frame_size.x + csd_shadow_offset.x - coord0.x+f_shadow_sample_offset)/mask_tex_size, (coord0.y-csd_shadow_offset.z+f_shadow_sample_offset)/mask_tex_size));
+                start_x = (csd_shadow_offset.x + frame_size.x + f_shadow_sample_offset)/expanded_size.x;
+                start_y = (csd_shadow_offset.z - f_shadow_sample_offset)/expanded_size.y;
                 
                 outColor = shapeShadowWindow(start_x, start_y, tex, texCorner);
 
                 //Outline
                 if(draw_outline) {
-                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + shadow_sample_offset)/mask_tex_size));
+                    vec4 texOutline = texture2D(light_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - f_shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = lightOutline(outColor, texOutline, outline_strength);
                     }
 
                     //Dark outline
-                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + shadow_sample_offset)/mask_tex_size));
+                    texOutline = texture2D(dark_outline_sampler, vec2((coord0.x - frame_size.x - csd_shadow_offset.x - f_shadow_sample_offset)/mask_tex_size, (coord0.y - csd_shadow_offset.z + f_shadow_sample_offset)/mask_tex_size));
                     if(texOutline.a > 0.0) {
                         outColor = darkOutline(outColor, texOutline, dark_outline_strength);
                     }
@@ -501,7 +504,7 @@ void main()
                 outColor = tex;
 
                 //Outline
-                if(coord0.y > radius + csd_shadow_offset.z && coord0.y < csd_shadow_offset.z + frame_size.y - radius && draw_outline) {
+                if(coord0.y > f_radius + csd_shadow_offset.z && coord0.y < csd_shadow_offset.z + frame_size.y - f_radius && draw_outline) {
                     if(coord0.x >= frame_size.x + csd_shadow_offset.x-1.0 && coord0.x <= frame_size.x + csd_shadow_offset.x) {
                         outColor = mix(outColor, vec4(1.0,1.0,1.0,1.0), outline_strength);
                     }
@@ -519,7 +522,7 @@ void main()
             outColor = tex;
 
             //Outline
-            if(coord0.x > radius + csd_shadow_offset.x && coord0.x < csd_shadow_offset.x + frame_size.x - radius && draw_outline) {
+            if(coord0.x > f_radius + csd_shadow_offset.x && coord0.x < csd_shadow_offset.x + frame_size.x - f_radius && draw_outline) {
                 if(
                     (coord0.y >= frame_size.y + csd_shadow_offset.z-1.0 && coord0.y <= frame_size.y + csd_shadow_offset.z)
                     || (coord0.y >= csd_shadow_offset.z && coord0.y <= csd_shadow_offset.z+1.0)
@@ -548,6 +551,6 @@ void main()
     outColor *= modulation;
     
     //Output result
-    fragColor = outColor;
-    //fragColor = vec4(tex.r, tex.g, 1.0, tex.a);
+    gl_FragColor = outColor;
+    //gl_FragColor = vec4(tex.r, tex.g, 1.0, tex.a);
 }
