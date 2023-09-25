@@ -528,8 +528,11 @@ CornersShaderEffect::prePaintWindow(EffectWindow *w, WindowPrePaintData &data, s
         }
     }
 
-    if(!blur_region.isEmpty() || w->windowClass().contains("konsole", Qt::CaseInsensitive)) {   
-        if(w->windowClass().contains("konsole", Qt::CaseInsensitive)) {
+    if (!blur_region.isEmpty() ||
+        w->windowClass().contains("konsole", Qt::CaseInsensitive) ||
+        w->windowClass().contains("yakuake", Qt::CaseInsensitive)) {   
+        if (w->windowClass().contains("konsole", Qt::CaseInsensitive) ||
+            w->windowClass().contains("yakuake", Qt::CaseInsensitive)) {
             blur_region = QRegion(0,0,geo.width(),geo.height());    
         }
 
