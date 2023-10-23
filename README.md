@@ -33,6 +33,8 @@ RoundedSBE has the following main features:
 
 Please note that after installing, you need to restart KWin by executing either `kwin_x11 --replace` or `kwin_wayland --replace` in krunner (depending on whether your session runs upon X11 or Wayland). Alternatively, restarting the KDE session is obviously also an option. Then, RoundedSBE will appear in *System Settings &rarr; Appearance &rarr; Window Decorations* and CornersShader will appear in *System Settings &rarr; Workspace Behavior &rarr; Desktop Effects*.
 
+In order for the rounded corners to be displayed correctly, you need to set the *`Window border size`* (*System Settings &rarr; Appearance &rarr; Window Decorations*) to *`No Borders`*.
+
 ### Compile from source code
 *Compilation should not be done against versions of KWin < 5.27.*
 
