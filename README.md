@@ -1,3 +1,5 @@
+## This repository is archived now. Please, use [LightlyShaders](https://github.com/a-parhom/LightlyShaders) effect, which works with any window decorations.
+
 # RoundedSBE
 
 This is a fork of **SierraBreezeEnhanced** with integrated corner rounding effect **CornersShader** (reworked version of **LightlyShaders**). The main purpose of this fork is the shared configuration for both window decoration and corner rounding effect, as well as opportunity to use window rules, that were implemented in SBE, together with CornersShader effect.
